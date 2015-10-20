@@ -1,0 +1,76 @@
+Copied from https://old.etherpad-mozilla.org/html5-cross-origin-objects with some wrapping added.
+
+ - Window and Location objects represent a concept. In the case of Window it's
+  the set of APIs associated with a Document in a browsing context; in the case
+  of Location it's the set of APIs relating to the Location object's associated
+  browsing context's URL and navigation.
+
+- When a script from one origin tries to get a Window or Location object
+  representing a concept from another origin, it gets an instance of that object
+  that is specially minted for that origin. If that origin is not the same
+  origin as the origin of the Document for which the underlying concept exists,
+  then the object is known as a "cross-origin object". Cross-Origin Objects implement
+  very custom behavior, and thus, from an ES perspective, are considered to be Proxies.
+
+- [in-testsuite] The === operator, when applied to two objects representing
+  the same underlying concept, returns true (even after document.domain).
+
+- [per-spec] Cross-origin objects' properties fall into two buckets, whitelisted and not
+  whitelisted (the lists are in the spec today).
+
+- [per-spec] The properties that are whitelisted on a cross-origin  object are one of:
+  - Primitives
+  - Methods, getters, and setters, returning one of:
+    - Primitives
+    - Objects that have cross-origin representations (i.e. Window and Location)
+
+- A Caller-Appropriate Cross-Origin Representation of a Method, Getter, or Setter f is
+  a function whose behavior matches |f|, whose prototype is the Function.prototype of
+  the incumbent script, and whose identity is unique per-tuple of (incumbent script
+  settings object, source concept object, and property name).
+
+- Original refers to the value or accessor that would have appeared on an object had
+  no script been run (i.e. ignoring modifications to standard properties by script).
+
+- A Caller-Appropriate Representation of a value |v| is:
+  - if |v| is a primitive, return |v|.
+  - if |v| is a function, return A Caller-Appropriate Cross-Origin Representation of v
+  - if |v| is a an object, then:
+    - if the origin of |v| is same-origin with the incumbent, return |v|
+    - if the origin of |v| is not same-origin with the incumbent, return a cross-origin
+      object for |v|'s concept, that is unique per-tuple of (caller origin, concept object).
+
+- The ES Internal Methods on a cross-origin object do the following:
+  - [in-testsuite] [[GetPrototypeOf]] - Returns null.
+  - [in-testsuite] [[SetPrototypeOf]] - Throws.
+  - [in-testsuite] [[IsExtensible]] - Returns true.
+  - [in-testsuite] [[PreventExtensions]] - Throws.
+  - [in-testsuite] [[GetOwnProperty]]:
+    - let 'the property' refer to the property (if any) from the interface with the name being
+      resolved. All properties on cross-origin objects are considered |own|.
+    - If the property is a value-prop and whitelisted for reading, return a property descriptor
+      with |configurable| set to true, |enumerable| set to false, |writable| set to false, and
+      |value| to a Caller-Appropriate Representation of the Original value.
+    - Otherwise, if the property is an accessor prop whitelisted for reading or writing, return
+      a property descriptor with |configurable| set to true, and |enumerable| set to false. If the
+      property is whitelisted for reading, |get| is set to a Caller-Appropriate Cross-Origin
+      Representation of the Original getter, otherwise it is undefined. If the property is
+      whitelisted for writing, |set| is set to a Caller-Appropriate Cross-Origin Representation
+      of the Original setter, otherwise it is undefined.
+   - Otherwise, throw a security exception.
+  - [in-testsuite] [[HasProperty]] - If the property is whitelisted, returns true. Otherwise, throws.
+  - [in-testsuite] [[Get]] - Invoke [[GetOwnProperty]]. If this results in a value-prop, return
+    the value. If this results in an accessor prop with a getter, invoke the getter. Otherwise, throw.
+  - [in-testsuite] [[Set]] - Invoke [[GetOwnProperty]]. If there is a setter, invoke it. Otherwise, throw.
+  - [in-testsuite] [[Delete]] - Throws.
+  - [in-testsuite] [[DefineOwnProperty]] - Throws.
+  - [in-testsuite] [[Enumerate]] - Should return an empty iterator.
+    - (see https://www.w3.org/Bugs/Public/show_bug.cgi?id=22102 )
+  - [in-testsuite] [[GetOwnPropertyKeys]] - Should return an enumerator over whitelisted
+    properties.
+
+
+===Notes===
+-Should  we check for SecurityError proper in the tests? Maybe later, since for  now it'll likely cause most UAs to fail early and we won't get as good  of a sense of how close we are.
+-Followup - Spec the intricacies of cross-origin named access, and add tests for [[GetOwnPropertyKeys]] when indexed and named subframes are involved
+(IH: set a flag when it's not a SecurityError proper, and at the end of the test, check if the flag is set, and if so, fail it for that reason. That way it's the last thing we check.)
