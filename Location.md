@@ -36,7 +36,7 @@ See HTML.
 
 ## [[PreventExtensions]\] ( )
 
-1. Throw a TypeError exception.
+1. Return false.
 
 ## [[GetOwnProperty]\] (_P_)
 
