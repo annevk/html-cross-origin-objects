@@ -1,8 +1,8 @@
-# Location Object
+# Location Objects
 
-A Location object has an internal slot [[crossOriginProperties]\] which is a List consisting of { [[property]\]: "href", [[get]\]: false, [[set]\]: true } and { [[property]\]: "replace" }.
+A location object is an exotic object. It has an internal slot [[crossOriginProperties]\] which is a List consisting of { [[property]\]: "href", [[get]\]: false, [[set]\]: true } and { [[property]\]: "replace" }.
 
-A location object has an internal slot [[crossOriginPropertyDescriptorWeakMap\] which is a WeakMap object.
+A location object has an internal slot [[crossOriginPropertyDescriptorWeakMap]\] which is a WeakMap object.
 
 ## Location[DONE\] (_DONE_...)
 
@@ -48,13 +48,13 @@ See HTML.
 
     1. Let _crossOriginKey_ be TODO.
 
-    1. If this@[[crossOriginPropertyDescriptorWeakMap\].has(_crossOriginKey_) is true, return this@[[crossOriginPropertyDescriptorWeakMap\].get(_crossOriginKey_).
+    1. If this@[[crossOriginPropertyDescriptorWeakMap]\].has(_crossOriginKey_) is true, return this@[[crossOriginPropertyDescriptorWeakMap]\].get(_crossOriginKey_).
 
     1. Let _originalDesc_ be DefaultInternalMethod([[GetOwnProperty]\], this, _P_).
 
     1. Let _crossOriginDesc_ be CrossOriginPropertyDescriptor(_e_, _originalDesc_).
 
-    1. this@[[crossOriginPropertyDescriptorWeakMap\].set(_crossOriginKey_, _crossOriginDesc_).
+    1. this@[[crossOriginPropertyDescriptorWeakMap]\].set(_crossOriginKey_, _crossOriginDesc_).
 
     1. Return _crossOriginDesc_.
 
