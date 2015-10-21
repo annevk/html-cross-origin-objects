@@ -64,22 +64,35 @@ See HTML.
 
 1. If _crossOriginProperty_.[[get]\] and _crossOriginProperty_.[[set]\] are absent, then:
 
-  1. Let _crossOriginFunction_ be a new bound function for _originalDesc_.[[Value]\].
-
-  1. Return PropertyDescriptor{ [[Value]]: _crossOriginFunction_, [[Enumerable]]: true, [[Writable]]: false, [[Configurable]]: false }.
+  1. Return PropertyDescriptor{ [[Value]]: CrossOriginFunctionWrapper(true, _crossOriginFunction_), [[Enumerable]]: true, [[Writable]]: false, [[Configurable]]: false }.
 
 1. Otherwise, then:
 
-  1. Let _crossOriginGet_ be undefined.
+  1. Let _crossOriginGet_ be CrossOriginFunctionWrapper(_crossOriginProperty_.[[get]\], _originalDesc_.[[Get]\]).
 
-  1. Let _crossOriginSet_ be undefined.
-
-  1. If _crossOriginProperty_.[[get]\] is true, set _crossOriginGet_ to a new bound function for _originalDesc_.[[Get]\].
-
-  1. If _crossOriginProperty_.[[set]\] is true, set _crossOriginSet_ to a new bound function for _originalDesc_.[[Set]\].
+  1. Let _crossOriginSet_ be CrossOriginFunctionWrapper(_crossOriginProperty_.[[set]\], _originalDesc_.[[Set]\]).
 
   1. Return PropertyDescriptor{ [[Get]]: _crossOriginGet_, [[Set]]: _crossOriginSet_, [[Enumerable]]: true, [[Configurable]]: false }.
 
+### CrossOriginFunctionWrapper (_needsWrapping_, _functionToWrap_)
+
+1. If _needsWrapping_ is false, return undefined.
+
+1. Return a new cross-origin wrapper function whose [[Wrapped]\] internal slot is _functionToWrap_.
+
+### Cross-origin Wrapper Functions
+
+A cross-origin wrapper function is an anonymous built-in function that has a [[Wrapped]\] internal slot.
+
+When a cross-origin wrapper function _F_ is called with a list of arguments _argumentsList_, the following steps are taken:
+
+1. Assert: _F_ has a [[Wrapped]\] internal slot whose value is a function.
+
+1. Let _wrappedFunction_ be the value of _F_'s [[Wrapped]\] internal slot.
+
+1. Return Call(_wrappedFunction_, this, _argumentsList_)
+
+Note: due to this being invoked from a cross-origin context, a cross-origin wrapper function will have a different value for `Function.prototype` from the function being wrapped. This follows from how ECMAScript creates anonymous built-in functions.
 
 ## [[DefineOwnProperty]\] (_P_, _Desc_)
 
