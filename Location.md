@@ -20,6 +20,32 @@ See HTML.
 
 See HTML.
 
+## Location.toString ( )
+
+1. Let _hrefDesc_ be DefaultInternalMethod([[GetOwnProperty]\], this, "href").
+
+1. Return the result of calling _hrefDesc_.[[Get]\].
+
+The property has the attributes { [[Writable]]: false, [[Enumerable]]: true, [[Configurable]]: false }.
+
+## Location.toJSON
+
+The initial value of Location.toJSON is undefined.
+
+The property has the attributes { [[Writable]]: false, [[Enumerable]]: true, [[Configurable]]: false }.
+
+## Location.valueOf ( )
+
+1. Return this.
+
+The property has the attributes { [[Writable]]: false, [[Enumerable]]: true, [[Configurable]]: false }.
+
+## Location [ @@toPrimitive ]
+
+The initial value of Location[@@toPrimitive] is undefined.
+
+This property has the attributes { [[Writable]]: false, [[Enumerable]]: false, [[Configurable]]: false }.
+
 ## [[GetPrototypeOf]\] ( )
 
 1. If "same-origin", then return DefaultInternalMethod([[GetPrototypeOf]\], this).
