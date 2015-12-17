@@ -2,7 +2,7 @@
 
 ## Return the correct `Location` object
 
-Wherever `Location` objects are returned, we need to make sure to return the correct one. Basically, each `Document` has one or more `Location` objects associated with it, each created in a different Realm. Whenever a `Location` object for a `Document` is requested, the one returned needs to have been created in the entry settings object's Realm.
+Wherever `Location` objects are returned, we need to make sure to return the correct one. Basically, each `Document` has one or more `Location` objects associated with it, each created in a different Realm. Whenever a `Location` object for a `Document` is requested, if the `Document`'s effective script origin is not the same as entry settings object's effective script origin, the one returned needs to have been created in the entry settings object's Realm, otherwise it can be the default one for the `Document` object.
 
 Note: this should automatically make the LocationIsSameOrigin abstract operation consider it cross-origin if it came from a `Document` object with another origin.
 
@@ -20,7 +20,7 @@ For every member other than `href`'s setter and `replace()`, add this step at th
 
 1. If this `Location` object's relevant `Document`'s effective script origin is not the same as entry settings object's effective script origin, throw a `SecurityError` exception.
 
-Note: the specification already covers this, but it is better to inline.
+Note: the HTML standard already covers this, but it is better to inline security than tag it on.
 
 ## New internal slots
 
