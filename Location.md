@@ -1,5 +1,11 @@
 # Modifications to the `Location` object
 
+## Get rid of `[Unforgeable]`
+
+Rather than being non-configurable, we want `Location` objects to appear configurable, but not actually be configurable. The rationale is that `Location` objects can go from being same-origin to cross-origin at which point a number of properties disappear and the identities of those that remain change. However, we do not actually want properties that appear in IDL to be configurable in either the same-origin or cross-origin case.
+
+The way we do this is by introducing a new internal slot that contains a list of all the properties. Whenever [[DefineOwnProperty]\], [[Set]\], [[Delete]\], are used targeting any of those properties they return false.
+
 ## New internal slots
 
 A `Location` object has a [[crossOriginProperties]\] slot which is a List consisting of { [[property]\]: "href", [[get]\]: false, [[set]\]: true } and { [[property]\]: "replace" }.
@@ -96,7 +102,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. If "same-origin", then return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
 
-1. Throw a TypeError exception.
+1. Return false.
 
 ### [[HasProperty]\] (_P_)
 
