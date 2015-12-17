@@ -1,10 +1,18 @@
 # Modifications to the `Location` object
 
+## Return the correct `Location` object
+
+Wherever `Location` objects are returned, we need to make sure to return the correct one. Basically, each `Document` has one or more `Location` objects associated with it, each created in a different Realm. Whenever a `Location` object for a `Document` is requested, the one returned needs to have been created in the entry settings object's Realm.
+
+Note: this should automatically make the LocationIsSameOrigin abstract operation consider it cross-origin if it came from a `Document` object with another origin.
+
 ## Get rid of `[Unforgeable]`
 
 Rather than being non-configurable, we want `Location` objects to appear configurable, but not actually be configurable. The rationale is that `Location` objects can go from being same-origin to cross-origin at which point a number of properties disappear and the identities of those that remain change. However, we do not actually want properties that appear in IDL to be configurable in either the same-origin or cross-origin case.
 
 The way we do this is by introducing a new internal slot that contains a list of all the properties. Whenever [[DefineOwnProperty]\], [[Set]\], [[Delete]\], are used targeting any of those properties they return false.
+
+Note: this is not yet integrated below.
 
 ## Add security check to existing member definitions
 
