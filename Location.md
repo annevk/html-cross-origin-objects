@@ -6,6 +6,14 @@ Rather than being non-configurable, we want `Location` objects to appear configu
 
 The way we do this is by introducing a new internal slot that contains a list of all the properties. Whenever [[DefineOwnProperty]\], [[Set]\], [[Delete]\], are used targeting any of those properties they return false.
 
+## Add security check to existing member definitions
+
+For every member other than `href`'s setter and `replace()`, add this step at the beginning:
+
+1. If this `Location` object's relevant `Document`'s effective script origin is not the same as entry settings object's effective script origin, throw a `SecurityError` exception.
+
+Note: the specification already covers this, but it is better to inline.
+
 ## New internal slots
 
 A `Location` object has a [[crossOriginProperties]\] slot which is a List consisting of { [[property]\]: "href", [[get]\]: false, [[set]\]: true } and { [[property]\]: "replace" }.
@@ -22,9 +30,17 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 ### [[GetPrototypeOf]\] ( )
 
-1. If "same-origin", then return DefaultInternalMethod([[GetPrototypeOf]\], this).
+1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[GetPrototypeOf]\], this).
 
 1. Return null.
+
+#### LocationIsSameOrigin(_O_)
+
+1. Let _internalOrigin_ be the effective script origin of the _O_'s Realm's global object.
+
+2. Let _externalOrigin_ be the effective script origin of _O_'s associated Document.
+
+3. Return _internalOrigin_ same origin _externalOrigin_.
 
 #### DefaultInternalMethod(_internalMethod_, _O_, _arguments_...)
 
@@ -44,7 +60,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 ### [[GetOwnProperty]\] (_P_)
 
-1. If "same-origin", then return DefaultInternalMethod([[GetOwnProperty]\], this, _P_).
+1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[GetOwnProperty]\], this, _P_).
 
 1. Repeat for each _e_ that is an element of this@[[crossOriginProperties]\]:
 
@@ -100,13 +116,13 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[DefineOwnProperty]\] (_P_, _Desc_)
 
-1. If "same-origin", then return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
+1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
 
 1. Return false.
 
 ### [[HasProperty]\] (_P_)
 
-1. If "same-origin", then return DefaultInternalMethod([[HasProperty]\], this, _P_).
+1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[HasProperty]\], this, _P_).
 
 1. Repeat for each _e_ that is an element of this@[[crossOriginProperties]\]:
 
@@ -116,7 +132,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[Get]\] (_P_, _Receiver_)
 
-1. If "same-origin", then return DefaultInternalMethod([[Get]\], this, _P_, _Receiver_).
+1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[Get]\], this, _P_, _Receiver_).
 
 1. Let _desc_ be this.[[GetOwnProperty]\](_P_).
 
@@ -124,11 +140,11 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. Throw a TypeError exception.
 
-Note: "href" can only be set when not "same-origin".
+Note: "href" can only be set when not LocationIsSameOrigin(this).
 
 ### [[Set]\] (_P_, _V_, _Receiver_)
 
-1. If "same-origin", then return DefaultInternalMethod([[Set]\], this, _P_, _Receiver_).
+1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[Set]\], this, _P_, _Receiver_).
 
 1. Let _desc_ be this.[[GetOwnProperty]\](_P_).
 
@@ -142,19 +158,19 @@ Note: "href" can only be set when not "same-origin".
 
 ### [[Delete]\] (_P_)
 
-1. If "same-origin", then return DefaultInternalMethod([[Delete]\], this, _P_).
+1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[Delete]\], this, _P_).
 
 1. Return false.
 
 ### [[Enumerate]\] ( )
 
-1. If "same-origin", then return DefaultInternalMethod([[Enumerate]\], this).
+1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[Enumerate]\], this).
 
 1. Return CreateListIterator(« »).
 
 ### [[OwnPropertyKeys]\] ( )
 
-1. If "same-origin", then return DefaultInternalMethod([[OwnPropertyKeys]\], this).
+1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[OwnPropertyKeys]\], this).
 
 1. Let _keys_ be a new empty List.
 
