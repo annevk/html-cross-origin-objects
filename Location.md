@@ -32,6 +32,8 @@ User agents should allow a value held in the map to be garbage collected along w
 
 E.g., with `const href = Object.getOwnPropertyDescriptor(crossOriginLocation, "href").set` the value and its corresponding key in the map cannot be garbage collected as that would be observable.
 
+User agents may have an optimization whereby they remove key-value pairs from the map when `document.domain` is set. This is not observable as `document.domain` cannot revisit an earlier value.
+
 ## Internal method overrides
 
 This might need a corresponding change to IDL that makes it okay for internal methods to be overridden (using ECMAScript prose).
@@ -74,7 +76,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
   1. If SameValue(_e_.[[property]\], _P_) is true, then:
 
-    1. Let _crossOriginKey_ be TODO.
+    1. Let _crossOriginKey_ be a tuple consisting of the current Realm's global object's effective script origin, this' associated `Document`'s effective script origin, and _P_.
 
     1. If this@[[crossOriginPropertyDescriptorMap]\] has _crossOriginKey_, return the value corresponding to _crossOriginKey_ in this@[[crossOriginPropertyDescriptorMap]\].
 
