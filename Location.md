@@ -1,5 +1,25 @@
 # Modifications to the `Location` object
 
+## Implement IDL's "perform a security check"
+
+When perform a security check is invoked, with a _platformObject_, _realm_, _identifier_, and _type_, run these steps:
+
+1. If _platformObject_ has a [[crossOriginProperties]\] slot, then:
+
+  1. Repeat for each _e_ that is an element of this@[[crossOriginProperties]\]:
+
+    1. If SameValue(_e_.[[property]\], _identifier_) is true, then:
+
+      1. If _type_ is "method" and _e_ has neither [[get]\] nor [[get]\], return.
+
+      2. Otherwise, if _type_ is "getter" and _e_.[[get]\] is true, return.
+
+      3. Otherwise, if _type_ is "setter" and _e_.[[set]\] is true, return.
+
+1. If _platformObject_'s global object's effective script origin is not same origin with _realm_'s global object's effective script origin, throw a TypeError.
+
+Note: The _realm_ passed in is equal to "the current Realm" concept defined by ECMAScript. We should probably refactor this to use the latter and simplify IDL and this algorithm in the process.
+
 ## Return the correct `Location` object
 
 Wherever `Location` objects are returned, we need to make sure to return the correct one. Basically, each `Document` has one or more `Location` objects associated with it, each created in a different Realm. Whenever a `Location` object for a `Document` is requested, if the `Document`'s effective script origin is not the same as entry settings object's effective script origin, the one returned needs to have been created in the entry settings object's Realm, otherwise it can be the default one for the `Document` object.
