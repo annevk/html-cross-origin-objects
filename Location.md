@@ -1,5 +1,9 @@
 # Modifications to the `Location` object
 
+## Remove the existing security section for `Location`
+
+As stated there, it is bogus.
+
 ## Implement IDL's "perform a security check"
 
 When perform a security check is invoked, with a _platformObject_, _realm_, _identifier_, and _type_, run these steps:
@@ -28,19 +32,15 @@ Note: this should automatically make the LocationIsSameOrigin abstract operation
 
 ## Get rid of `[Unforgeable]`
 
-Rather than being non-configurable, we want `Location` objects to appear configurable, but not actually be configurable. The rationale is that `Location` objects can go from being same-origin to cross-origin at which point a number of properties disappear and the identities of those that remain change. However, we do not actually want properties that appear in IDL to be configurable in either the same-origin or cross-origin case.
+Rather than being non-configurable, we want `Location` objects to appear configurable, but not actually be configurable. The rationale is that `Location` objects can go from being same-origin to cross-origin at which point a number of properties disappear and the identities of those that remain change. However, we do not actually want properties that appear in IDL to be configurable in either the same-origin or cross-origin case. (The intention is to preserve the internal method invariants.)
 
-The way we do this is by introducing a new internal slot that contains a list of all the properties. Whenever [[DefineOwnProperty]\], [[Set]\], [[Delete]\], are used targeting any of those properties they return false.
-
-Note: this is not yet integrated below.
+This is done by changing [[GetOwnProperty]\] and [[DefineOwnProperty]\].
 
 ## Add security check to existing member definitions
 
 For every member other than `href`'s setter and `replace()`, add this step at the beginning:
 
 1. If this `Location` object's relevant `Document`'s effective script origin is not the same as entry settings object's effective script origin, throw a `SecurityError` exception.
-
-Note: the HTML standard already covers this, but it is better to inline security than tag it on.
 
 ## New internal slots
 
@@ -90,7 +90,13 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 ### [[GetOwnProperty]\] (_P_)
 
-1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[GetOwnProperty]\], this, _P_).
+1. If LocationIsSameOrigin(this), then:
+
+  1. Let _desc_ be DefaultInternalMethod([[GetOwnProperty]\], this, _P_).
+
+  1. If IDLDefined(this, _P_), then set _desc_.[[Configurable]\] to true.
+
+  1. Return _desc_.
 
 1. Repeat for each _e_ that is an element of this@[[crossOriginProperties]\]:
 
@@ -110,11 +116,15 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 1. Throw a TypeError exception.
 
+#### IDLDefined(_idlObject_, _property_)
+
+This operation needs to be defined by IDL, see [IDL bug 29376](https://www.w3.org/Bugs/Public/show_bug.cgi?id=29376).
+
 #### CrossOriginPropertyDescriptor (_crossOriginProperty_, _originalDesc_)
 
 1. If _crossOriginProperty_.[[get]\] and _crossOriginProperty_.[[set]\] are absent, then:
 
-  1. Return PropertyDescriptor{ [[Value]]: CrossOriginFunctionWrapper(true, _crossOriginFunction_), [[Enumerable]]: true, [[Writable]]: false, [[Configurable]]: false }.
+  1. Return PropertyDescriptor{ [[Value]]: CrossOriginFunctionWrapper(true, _crossOriginFunction_), [[Enumerable]]: true, [[Writable]]: false, [[Configurable]]: true }.
 
 1. Otherwise, then:
 
@@ -122,7 +132,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
   1. Let _crossOriginSet_ be CrossOriginFunctionWrapper(_crossOriginProperty_.[[set]\], _originalDesc_.[[Set]\]).
 
-  1. Return PropertyDescriptor{ [[Get]]: _crossOriginGet_, [[Set]]: _crossOriginSet_, [[Enumerable]]: true, [[Configurable]]: false }.
+  1. Return PropertyDescriptor{ [[Get]]: _crossOriginGet_, [[Set]]: _crossOriginSet_, [[Enumerable]]: true, [[Configurable]]: true }.
 
 #### CrossOriginFunctionWrapper (_needsWrapping_, _functionToWrap_)
 
@@ -146,7 +156,11 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[DefineOwnProperty]\] (_P_, _Desc_)
 
-1. If LocationIsSameOrigin(this), then return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
+1. If LocationIsSameOrigin(this), then:
+
+  1. If IDLDefined(this, _P_), return false.
+
+  1. Return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
 
 1. Return false.
 
