@@ -1,10 +1,4 @@
-# Modifications to the `Location` object
-
-## Remove the existing security section for `Location`
-
-As stated there, it is bogus.
-
-## Implement IDL's "perform a security check"
+# Implement IDL's "perform a security check"
 
 When perform a security check is invoked, with a _platformObject_, _realm_, _identifier_, and _type_, run these steps:
 
@@ -23,6 +17,14 @@ When perform a security check is invoked, with a _platformObject_, _realm_, _ide
 1. If _platformObject_'s global object's effective script origin is not same origin with _realm_'s global object's effective script origin, throw a **TypeError**.
 
 Note: The _realm_ passed in is equal to "the current Realm" concept defined by ECMAScript. We should probably refactor this to use the latter and simplify IDL and this algorithm in the process.
+
+Issue: Currently it is specified below that the window proxy object carries the [[crossOriginProperties]\] slot. That does not quite work with the text above.
+
+# Modifications to the `Location` object
+
+## Remove the existing security section for `Location`
+
+As stated there, it is bogus.
 
 ## Return the correct `Location` object
 
