@@ -2,9 +2,9 @@
 
 When perform a security check is invoked, with a _platformObject_, _realm_, _identifier_, and _type_, run these steps:
 
-1. If _platformObject_ has a [[crossOriginProperties]\] slot, then:
+1. If _platformObject_ is a `Location` or `Window` object, then:
 
-  1. Repeat for each _e_ that is an element of _platformObject_.[[crossOriginProperties]\]:
+  1. Repeat for each _e_ that is an element of CrossOriginProperties(_platformObject_):
 
     1. If SameValue(_e_.[[property]\], _identifier_) is **true**, then:
 
@@ -17,6 +17,26 @@ When perform a security check is invoked, with a _platformObject_, _realm_, _ide
 1. If _platformObject_'s global object's effective script origin is not same origin with _realm_'s global object's effective script origin, throw a **TypeError**.
 
 Note: The _realm_ passed in is equal to "the current Realm" concept defined by ECMAScript. We should probably refactor this to use the latter and simplify IDL and this algorithm in the process.
+
+## CrossOriginProperties(_O_)
+
+1. Assert: _O_ is a `Location` or `Window` object.
+
+1. If _O_ is a `Location` object, return « { [[property]\]: "href", [[get]\]: **false**, [[set]\]: **true** }, { [[property]\]: "replace" } ».
+
+1. Let _crossOriginWindowProperties_ be « { [[property]\]: "location", [[get]\]: **true**, [[set]\]: **true** }, { [[property]\]: "postMessage" }, { [[property]\]: "window", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "frames", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "self", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "top", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "parent", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "opener", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "closed", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "close" }, { [[property]\]: "blur" }, { [[property]\]: "focus" } ».
+
+1. Repeat for each _e_ that is an element of the **dynamic nested browsing context properties**:
+
+  1. Add { [[property]\]: _e_ } as the last element of _crossOriginWindowProperties_.
+
+1. Repeat for each _e_ that is an element of the **child browsing context name properties** that are **supported property names**:
+
+  1. Add { [[property]\]: _e_ } as the last element of _crossOriginWindowProperties_.
+
+1. Return _crossOriginWindowProperties_.
+
+Note: this last line depends on https://github.com/whatwg/html/pull/544 being correct.
 
 # Modifications to the `Location` object
 
@@ -39,8 +59,6 @@ For every member other than `href`'s setter and `replace()`, add this step at th
 ## New internal slots
 
 A `Location` object has a [[standardDefinedProperties]\] slot which is an empty List.
-
-A `Location` object has a [[crossOriginProperties]\] slot which is a List consisting of { [[property]\]: "href", [[get]\]: **false**, [[set]\]: **true** } and { [[property]\]: "replace" }.
 
 A `Location` object has an [[crossOriginPropertyDescriptorMap]\] slot which is an empty map.
 
@@ -136,7 +154,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 1. Let _crossOriginKey_ be a tuple consisting of the current Realm's global object's effective script origin, _O_'s global object's effective script origin, and _P_.
 
-1. Repeat for each _e_ that is an element of _O_.[[crossOriginProperties]\]:
+1. Repeat for each _e_ that is an element of CrossOriginProperties(_O_):
 
   1. If SameValue(_e_.[[property]\], _P_) is **true**, then:
 
@@ -207,7 +225,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[HasProperty]\], _O_, _P_).
 
-1. Repeat for each _e_ that is an element of _O_.[[crossOriginProperties]\]:
+1. Repeat for each _e_ that is an element of CrossOriginProperties(_O_):
 
   1. If SameValue(_e_.[[property]\], _P_) is **true**, then return **true**.
 
@@ -279,7 +297,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. Let _keys_ be a new empty List.
 
-1. Repeat for each _e_ that is an element of _O_.[[crossOriginProperties]\]:
+1. Repeat for each _e_ that is an element of CrossOriginProperties(_O_):
 
   1. Add _e_.[[property]\] as the last element of _keys_.
 
@@ -288,8 +306,6 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 # WindowProxy
 
 ## Extensions to `Window` objects
-
-Every `Window` object has a [[crossOriginProperties]\] internal slot which is a List consisting of TODO.
 
 Every `Window` object has an [[crossOriginPropertyDescriptorMap]\] internal slot which is a map.
 
