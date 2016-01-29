@@ -26,12 +26,6 @@ Issue: Currently it is specified below that the window proxy object carries the 
 
 As stated there, it is bogus.
 
-## Return the correct `Location` object
-
-Wherever `Location` objects are returned, we need to make sure to return the correct one. Basically, each `Document` has one or more `Location` objects associated with it, each created in a different Realm. Whenever a `Location` object for a `Document` is requested, if the `Document`'s effective script origin is not the same as entry settings object's effective script origin, the one returned needs to have been created in the entry settings object's Realm, otherwise it can be the default one for the `Document` object.
-
-Note: this should automatically make the LocationIsSameOrigin abstract operation consider it cross-origin if it came from a `Document` object with another origin.
-
 ## Get rid of `[Unforgeable]`
 
 Rather than being non-configurable, we want `Location` objects to appear configurable, but not actually be configurable. The rationale is that `Location` objects can go from being same-origin to cross-origin at which point a number of properties disappear and the identities of those that remain change. However, we do not actually want properties that appear in IDL to be configurable in either the same-origin or cross-origin case. (The intention is to preserve the internal method invariants.)
@@ -62,21 +56,17 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 ### [[GetPrototypeOf]\] ( )
 
-1. Return CrossOriginGetPrototypeOf(LocationIsSameOrigin, this).
+1. Return CrossOriginGetPrototypeOf(this).
 
-#### CrossOriginGetPrototypeOf(_isSameOrigin_, _O_)
+#### CrossOriginGetPrototypeOf(_O_)
 
-1. If _isSameOrigin_(this), then return DefaultInternalMethod([[GetPrototypeOf]\], this).
+1. If IsSameOrigin(this), then return DefaultInternalMethod([[GetPrototypeOf]\], this).
 
 1. Return null.
 
-#### LocationIsSameOrigin(_O_)
+#### IsSameOrigin(_O_)
 
-1. Let _internalOrigin_ be the effective script origin of the _O_'s Realm's global object.
-
-2. Let _externalOrigin_ be the effective script origin of _O_'s associated Document.
-
-3. Return _internalOrigin_ same origin _externalOrigin_.
+1. Return true if the effective script origin of the current Realm's global object is same origin with the effective script origin of _O_'s global object, and false otherwise.
 
 #### DefaultInternalMethod(_internalMethod_, _O_, _arguments_...)
 
@@ -96,7 +86,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 ### [[GetOwnProperty]\] (_P_)
 
-1. If LocationIsSameOrigin(this), then:
+1. If IsSameOrigin(this), then:
 
   1. Let _desc_ be DefaultInternalMethod([[GetOwnProperty]\], this, _P_).
 
@@ -167,7 +157,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[DefineOwnProperty]\] (_P_, _Desc_)
 
-1. If LocationIsSameOrigin(this), then:
+1. If IsSameOrigin(this), then:
 
   1. If IDLDefined(this, _P_), then return **false**.
 
@@ -177,11 +167,11 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[HasProperty]\] (_P_)
 
-1. Return CrossOriginHasProperty(LocationIsSameOrigin, this, this, _P_).
+1. Return CrossOriginHasProperty(this, this, _P_).
 
-#### CrossOriginHasProperty(_isSameOrigin_, _O_, _proxyO_, _P_)
+#### CrossOriginHasProperty(_O_, _proxyO_, _P_)
 
-1. If _isSameOrigin_(_proxyO_), then return DefaultInternalMethod([[HasProperty]\], _proxyO_, _P_).
+1. If IsSameOrigin(_proxyO_), then return DefaultInternalMethod([[HasProperty]\], _proxyO_, _P_).
 
 1. Repeat for each _e_ that is an element of _O_@[[crossOriginProperties]\]:
 
@@ -191,11 +181,11 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[Get]\] (_P_, _Receiver_)
 
-1. Return CrossOriginGet(LocationIsSameOrigin, this, this, _P_, _Receiver_).
+1. Return CrossOriginGet(this, this, _P_, _Receiver_).
 
-#### CrossOriginGet(_isSameOrigin_, _O_, _proxyO_, _P_, _Receiver_)
+#### CrossOriginGet(_O_, _proxyO_, _P_, _Receiver_)
 
-1. If _isSameOrigin_(_proxyO_), then return DefaultInternalMethod([[Get]\], _proxyO_, _P_, _Receiver_).
+1. If IsSameOrigin(_proxyO_), then return DefaultInternalMethod([[Get]\], _proxyO_, _P_, _Receiver_).
 
 1. Let _desc_ be _O_.[[GetOwnProperty]\](_P_).
 
@@ -205,11 +195,11 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[Set]\] (_P_, _V_, _Receiver_)
 
-1. Return CrossOriginSet(LocationIsSameOrigin, this, this, _P_, _V_, _Receiver_).
+1. Return CrossOriginSet(this, this, _P_, _V_, _Receiver_).
 
-#### CrossOriginSet(_isSameOrigin_, _O_, _proxyO_, _P_, _V_, _Receiver_)
+#### CrossOriginSet(_O_, _proxyO_, _P_, _V_, _Receiver_)
 
-1. If _isSameOrigin_(_proxyO_), then return DefaultInternalMethod([[Set]\], _proxyO_, _P_, _Receiver_).
+1. If IsSameOrigin(_proxyO_), then return DefaultInternalMethod([[Set]\], _proxyO_, _P_, _Receiver_).
 
 1. Let _desc_ be _O_.[[GetOwnProperty]\](_P_).
 
@@ -223,31 +213,31 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[Delete]\] (_P_)
 
-1. Return CrossOriginDelete(LocationIsSameOrigin, this, _P_).
+1. Return CrossOriginDelete(this, _P_).
 
-#### CrossOriginDelete(_isSameOrigin_, _O_, _P_)
+#### CrossOriginDelete(_O_, _P_)
 
-1. If _isSameOrigin_(_O_), then return DefaultInternalMethod([[Delete]\], _O_, _P_).
+1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[Delete]\], _O_, _P_).
 
 1. Return **false**.
 
 ### [[Enumerate]\] ( )
 
-1. Return CrossOriginEnumerate(LocationIsSameOrigin, this).
+1. Return CrossOriginEnumerate(this).
 
-#### CrossOriginEnumerate(_isSameOrigin_, _O_)
+#### CrossOriginEnumerate(_O_)
 
-1. If _isSameOrigin_(_O_), then return DefaultInternalMethod([[Enumerate]\], _O_).
+1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[Enumerate]\], _O_).
 
 1. Return CreateListIterator(« »).
 
 ### [[OwnPropertyKeys]\] ( )
 
-1. Return CrossOriginOwnPropertyKeys(LocationIsSameOrigin, this, this).
+1. Return CrossOriginOwnPropertyKeys(this, this).
 
-#### CrossOriginOwnPropertyKeys(_isSameOrigin_, _O_, _proxyO_)
+#### CrossOriginOwnPropertyKeys(_O_, _proxyO_)
 
-1. If _isSameOrigin_(_proxyO_), then return DefaultInternalMethod([[OwnPropertyKeys]\], _proxyO_).
+1. If IsSameOrigin(_proxyO_), then return DefaultInternalMethod([[OwnPropertyKeys]\], _proxyO_).
 
 1. Let _keys_ be a new empty List.
 
@@ -277,9 +267,9 @@ The internal methods of window proxies are defined as follows, for a window prox
 
 ### [[GetPrototypeOf]\] ( )
 
-1. Return CrossOriginGetPrototypeOf(WindowIsSameOrigin, _W_).
+1. Return CrossOriginGetPrototypeOf(Window_W_).
 
-#### WindowIsSameOrigin(_O_)
+#### IsSameOrigin(_O_)
 
 TODO.
 
@@ -297,7 +287,7 @@ TODO.
 
 ### [[GetOwnProperty]\] (_P_)
 
-1. If WindowIsSameOrigin(_W_), then:
+1. If IsSameOrigin(_W_), then:
 
   1. Let _desc_ be DefaultInternalMethod([[GetOwnProperty]\], _W_, _P_).
 
@@ -311,7 +301,7 @@ TODO.
 
 ### [[DefineOwnProperty]\] (_P_, _Desc_)
 
-1. If WindowIsSameOrigin(_W_), then:
+1. If IsSameOrigin(_W_), then:
 
   1. If _Desc_.[[Configurable]] is **false**, then return **false**.
 
@@ -323,24 +313,24 @@ Note: If _desc_.[[Configurable]] is not present, the above steps do not prescrib
 
 ### [[HasProperty]\] (_P_)
 
-1. Return CrossOriginHasProperty(WindowIsSameOrigin, this, _W_, _P_).
+1. Return CrossOriginHasProperty(this, _W_, _P_).
 
 ### [[Get]\] (_P_, _Receiver_)
 
-1. Return CrossOriginGet(WindowIsSameOrigin, this, _W_, _P_, _Receiver_).
+1. Return CrossOriginGet(this, _W_, _P_, _Receiver_).
 
 ### [[Set]\] (_P_, _V_, _Receiver_)
 
-1. Return CrossOriginSet(WindowIsSameOrigin, this, _W_, _P_, _V_, _Receiver_).
+1. Return CrossOriginSet(this, _W_, _P_, _V_, _Receiver_).
 
 ### [[Delete]\] (_P_)
 
-1. Return CrossOriginDelete(WindowIsSameOrigin, _W_, _P_).
+1. Return CrossOriginDelete(Window_W_, _P_).
 
 ### [[Enumerate]\] ( )
 
-1. Return CrossOriginEnumerate(WindowIsSameOrigin, _W_).
+1. Return CrossOriginEnumerate(Window_W_).
 
 ### [[OwnPropertyKeys]\] ( )
 
-1. Return CrossOriginOwnPropertyKeys(WindowIsSameOrigin, this, _W_).
+1. Return CrossOriginOwnPropertyKeys(this, _W_).
