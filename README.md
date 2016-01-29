@@ -4,7 +4,7 @@ When perform a security check is invoked, with a _platformObject_, _realm_, _ide
 
 1. If _platformObject_ has a [[crossOriginProperties]\] slot, then:
 
-  1. Repeat for each _e_ that is an element of _platformObject_@[[crossOriginProperties]\]:
+  1. Repeat for each _e_ that is an element of _platformObject_.[[crossOriginProperties]\]:
 
     1. If SameValue(_e_.[[property]\], _identifier_) is **true**, then:
 
@@ -72,7 +72,7 @@ To create a Location object, run these steps:
 
 1. _location_.[[DefineOwnProperty]\](@@toPrimitive, { [[Value]\]: **undefined**, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
 
-1. Set _location_@[[standardDefinedProperties]\] to _location_.[[OwnPropertyKeys]\]().
+1. Set _location_.[[standardDefinedProperties]\] to _location_.[[OwnPropertyKeys]\]().
 
 1. Return _location_.
 
@@ -124,7 +124,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 #### StandardDefined(_O_, _P_)
 
-1. Repeat for each _e_ that is an element of _O_@[[standardDefinedProperties]\]:
+1. Repeat for each _e_ that is an element of _O_.[[standardDefinedProperties]\]:
 
   1. If _e_ is _P_, then return **true**.
 
@@ -136,17 +136,17 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 1. Let _crossOriginKey_ be a tuple consisting of the current Realm's global object's effective script origin, _O_'s global object's effective script origin, and _P_.
 
-1. Repeat for each _e_ that is an element of _O_@[[crossOriginProperties]\]:
+1. Repeat for each _e_ that is an element of _O_.[[crossOriginProperties]\]:
 
   1. If SameValue(_e_.[[property]\], _P_) is **true**, then:
 
-    1. If _O_@[[crossOriginPropertyDescriptorMap]\] has _crossOriginKey_, then return the value corresponding to _crossOriginKey_ in _O_@[[crossOriginPropertyDescriptorMap]\].
+    1. If _O_.[[crossOriginPropertyDescriptorMap]\] has _crossOriginKey_, then return the value corresponding to _crossOriginKey_ in _O_.[[crossOriginPropertyDescriptorMap]\].
 
     1. Let _originalDesc_ be DefaultInternalMethod([[GetOwnProperty]\], _O_, _P_).
 
     1. Let _crossOriginDesc_ be CrossOriginPropertyDescriptor(_e_, _originalDesc_).
 
-    1. Append key _crossOriginKey_ with its corresponding value _crossOriginDesc_ to _O_@[[crossOriginPropertyDescriptorMap]\].
+    1. Append key _crossOriginKey_ with its corresponding value _crossOriginDesc_ to _O_.[[crossOriginPropertyDescriptorMap]\].
 
     1. Return _crossOriginDesc_.
 
@@ -183,13 +183,13 @@ When a cross-origin wrapper function _F_ is called with a list of arguments _arg
 
 1. Let _wrappedFunction_ be the value of _F_'s [[Wrapped]\] internal slot.
 
-1. Return Call(_wrappedFunction_, this, _argumentsList_)
+1. Return Call(_wrappedFunction_, this, _argumentsList_).
 
 Note: due to this being invoked from a cross-origin context, a cross-origin wrapper function will have a different value for `Function.prototype` from the function being wrapped. This follows from how ECMAScript creates anonymous built-in functions.
 
 ### [[DefineOwnProperty]\] (_P_, _Desc_)
 
-1. If this@[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
+1. If this.[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
 
 1. If IsSameOrigin(this), then:
 
@@ -207,7 +207,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[HasProperty]\], _O_, _P_).
 
-1. Repeat for each _e_ that is an element of _O_@[[crossOriginProperties]\]:
+1. Repeat for each _e_ that is an element of _O_.[[crossOriginProperties]\]:
 
   1. If SameValue(_e_.[[property]\], _P_) is **true**, then return **true**.
 
@@ -224,6 +224,8 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 1. Let _desc_ be _O_.[[GetOwnProperty]\](_P_).
 
 1. If IsDataDescriptor(_desc_) is **true**, then return _desc_.[[Value]\].
+
+1. If IsAccessorDescriptor(_desc_) is **true**, then return Call(_desc_.[[Get]\], _Receiver_).
 
 1. Throw a **TypeError** exception.
 
@@ -267,7 +269,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[OwnPropertyKeys]\] ( )
 
-1. If this@[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[OwnPropertyKeys]\], this).
+1. If this.[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[OwnPropertyKeys]\], this).
 
 1. Return CrossOriginOwnPropertyKeys(this).
 
@@ -277,7 +279,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. Let _keys_ be a new empty List.
 
-1. Repeat for each _e_ that is an element of _O_@[[crossOriginProperties]\]:
+1. Repeat for each _e_ that is an element of _O_.[[crossOriginProperties]\]:
 
   1. Add _e_.[[property]\] as the last element of _keys_.
 
@@ -330,8 +332,6 @@ The internal methods of window proxies are defined as follows, for a window prox
    Note: See above about how this violates ECMAScript's internal method invariants.
 
 1. Return **false**.
-
-Note: If _desc_.[[Configurable]] is not present, the above steps do not prescribe returning **false**. See [related discussion on es-discuss](https://esdiscuss.org/topic/figuring-out-the-behavior-of-windowproxy-in-the-face-of-non-configurable-properties#content-40).
 
 ### [[HasProperty]\] (_P_)
 
