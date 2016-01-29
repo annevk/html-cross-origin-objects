@@ -94,15 +94,15 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
   1. Return _desc_.
 
-1. Let _crossOriginKey_ be a tuple consisting of the current Realm's global object's effective script origin, this' associated `Document`'s effective script origin, and _P_.
-
-1. Return CrossOriginGetOwnProperty(this, this, _crossOriginKey_, _P_).
+1. Return CrossOriginGetOwnProperty(this, this, _P_).
 
 #### IDLDefined(_idlObject_, _property_)
 
 This operation needs to be defined by IDL, see [IDL bug 29376](https://www.w3.org/Bugs/Public/show_bug.cgi?id=29376).
 
-#### CrossOriginGetOwnProperty(_O_, _proxyO_, _crossOriginKey_, _P_)
+#### CrossOriginGetOwnProperty(_O_, _proxyO_, _P_)
+
+1. Let _crossOriginKey_ be a tuple consisting of the current Realm's global object's effective script origin, _proxyO_'s global object's effective script origin, and _P_.
 
 1. Repeat for each _e_ that is an element of _O_@[[crossOriginProperties]\]:
 
@@ -269,10 +269,6 @@ The internal methods of window proxies are defined as follows, for a window prox
 
 1. Return CrossOriginGetPrototypeOf(Window_W_).
 
-#### IsSameOrigin(_O_)
-
-TODO.
-
 ### [[SetPrototypeOf]\] (_V_)
 
 1. Return **false**.
@@ -295,9 +291,7 @@ TODO.
 
   1. Return _desc_.
 
-1. Let _crossOriginKey_ be a tuple consisting of the current Realm's global object's effective script origin, TODO, and _P_.
-
-1. Return CrossOriginGetOwnProperty(this, _W_, _crossOriginKey_, _P_).
+1. Return CrossOriginGetOwnProperty(this, _W_, _P_).
 
 ### [[DefineOwnProperty]\] (_P_, _Desc_)
 
