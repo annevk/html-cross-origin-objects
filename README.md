@@ -283,23 +283,17 @@ The internal methods of window proxies are defined as follows, for a window prox
 
 ### [[GetOwnProperty]\] (_P_)
 
-1. If IsSameOrigin(_W_), then:
+1. If IsSameOrigin(_W_), then return DefaultInternalMethod([[GetOwnProperty]\], _W_, _P_).
 
-  1. Let _desc_ be DefaultInternalMethod([[GetOwnProperty]\], _W_, _P_).
-
-  1. Set _desc_.[[Configurable]] to **true**.
-
-  1. Return _desc_.
+   Note: This violates ECMAScript's internal method invariants. https://bugzilla.mozilla.org/show_bug.cgi?id=1197958#c4 has further discussion on the manner. For now we document what is implemented.
 
 1. Return CrossOriginGetOwnProperty(this, _W_, _P_).
 
 ### [[DefineOwnProperty]\] (_P_, _Desc_)
 
-1. If IsSameOrigin(_W_), then:
+1. If IsSameOrigin(_W_), then return DefaultInternalMethod([[DefineOwnProperty]\], _W_, _P_, _Desc_)
 
-  1. If _Desc_.[[Configurable]] is **false**, then return **false**.
-
-  1. Return DefaultInternalMethod([[DefineOwnProperty]\], _W_, _P_, _Desc_)
+   Note: See above about how this violates ECMAScript's internal method invariants.
 
 1. Return **false**.
 
