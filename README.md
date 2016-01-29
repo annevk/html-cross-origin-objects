@@ -40,9 +40,11 @@ For every member other than `href`'s setter and `replace()`, add this step at th
 
 ## New internal slots
 
+A `Location` object has a [[standardDefinedProperties]\] slot which is an empty List.
+
 A `Location` object has a [[crossOriginProperties]\] slot which is a List consisting of { [[property]\]: "href", [[get]\]: **false**, [[set]\]: **true** } and { [[property]\]: "replace" }.
 
-A `Location` object has an [[crossOriginPropertyDescriptorMap]\] slot which is a map.
+A `Location` object has an [[crossOriginPropertyDescriptorMap]\] slot which is an empty map.
 
 User agents should allow a value held in the map to be garbage collected along with its corresponding key when nothing holds a reference to any part of the value. I.e., as long as garbage collection is not observable.
 
@@ -50,23 +52,51 @@ E.g., with `const href = Object.getOwnPropertyDescriptor(crossOriginLocation, "h
 
 User agents may have an optimization whereby they remove key-value pairs from the map when `document.domain` is set. This is not observable as `document.domain` cannot revisit an earlier value.
 
+## Location creation
+
+To create a Location object, run these steps:
+
+1. Let _location_ be a new `Location` object.
+
+1. _location_.[[DefineOwnProperty]\]("toString", { [[Value]\]: %ObjProto_toString%, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
+
+1. _location_.[[DefineOwnProperty]\]("toJSON", { [[Value]\]: **undefined**, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
+
+1. Let _valueOfFunction_ be a **Function** object whose behavior is as follows:
+
+   1. Return ? ToObject(**this** value).
+
+   The value of the **Function** object's "length" property is the Number value 0.
+
+   The value of the **Function** object’s "name" property is the String value "valueOf".
+
+1. _location_.[[DefineOwnProperty]\]("valueOf", { [[Value]\]: _valueOfFunction_, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
+
+1. _location_.[[DefineOwnProperty]\](@@toPrimitive, { [[Value]\]: **undefined**, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
+
+1. Set _location_@[[standardDefinedProperties]\] to _location_.[[OwnPropertyKeys]\]().
+
+1. Return _location_.
+
 ## Internal method overrides
 
 This might need a corresponding change to IDL that makes it okay for internal methods to be overridden (using ECMAScript prose).
 
 ### [[GetPrototypeOf]\] ( )
 
+1. If this@[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[GetPrototypeOf]\], this).
+
 1. Return CrossOriginGetPrototypeOf(this).
 
 #### CrossOriginGetPrototypeOf(_O_)
 
-1. If IsSameOrigin(this), then return DefaultInternalMethod([[GetPrototypeOf]\], this).
+1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[GetPrototypeOf]\], _O_).
 
 1. Return null.
 
 #### IsSameOrigin(_O_)
 
-1. Return true if the effective script origin of the current Realm's global object is same origin with the effective script origin of _O_'s global object, and false otherwise.
+1. Return **true** if the effective script origin of the current Realm's global object is same origin with the effective script origin of _O_'s global object, and **false** otherwise.
 
 #### DefaultInternalMethod(_internalMethod_, _O_, _arguments_...)
 
@@ -90,15 +120,19 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
   1. Let _desc_ be DefaultInternalMethod([[GetOwnProperty]\], this, _P_).
 
-  1. If IDLDefined(this, _P_), then set _desc_.[[Configurable]\] to **true**.
+  1. If StandardDefined(this, _P_), then set _desc_.[[Configurable]\] to **true**.
 
   1. Return _desc_.
 
 1. Return CrossOriginGetOwnProperty(this, this, _P_).
 
-#### IDLDefined(_idlObject_, _property_)
+#### StandardDefined(_O_, _P_)
 
-This operation needs to be defined by IDL, see [IDL bug 29376](https://www.w3.org/Bugs/Public/show_bug.cgi?id=29376).
+1. Repeat for each _e_ that is an element of _O_@[[standardDefinedProperties]\]:
+
+  1. If _e_ is _P_, then return **true**.
+
+1. Return **false**.
 
 #### CrossOriginGetOwnProperty(_O_, _proxyO_, _P_)
 
@@ -157,9 +191,11 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[DefineOwnProperty]\] (_P_, _Desc_)
 
+1. If this@[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
+
 1. If IsSameOrigin(this), then:
 
-  1. If IDLDefined(this, _P_), then return **false**.
+  1. If StandardDefined(this, _P_), then return **false**.
 
   1. Return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
 
@@ -233,6 +269,8 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[OwnPropertyKeys]\] ( )
 
+1. If this@[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[OwnPropertyKeys]\], this).
+
 1. Return CrossOriginOwnPropertyKeys(this, this).
 
 #### CrossOriginOwnPropertyKeys(_O_, _proxyO_)
@@ -267,7 +305,7 @@ The internal methods of window proxies are defined as follows, for a window prox
 
 ### [[GetPrototypeOf]\] ( )
 
-1. Return CrossOriginGetPrototypeOf(Window_W_).
+1. Return CrossOriginGetPrototypeOf(_W_).
 
 ### [[SetPrototypeOf]\] (_V_)
 
@@ -313,11 +351,11 @@ Note: If _desc_.[[Configurable]] is not present, the above steps do not prescrib
 
 ### [[Delete]\] (_P_)
 
-1. Return CrossOriginDelete(Window_W_, _P_).
+1. Return CrossOriginDelete(_W_, _P_).
 
 ### [[Enumerate]\] ( )
 
-1. Return CrossOriginEnumerate(Window_W_).
+1. Return CrossOriginEnumerate(_W_).
 
 ### [[OwnPropertyKeys]\] ( )
 
