@@ -82,8 +82,6 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 ### [[GetPrototypeOf]\] ( )
 
-1. If this@[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[GetPrototypeOf]\], this).
-
 1. Return CrossOriginGetPrototypeOf(this).
 
 #### CrossOriginGetPrototypeOf(_O_)
