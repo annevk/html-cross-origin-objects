@@ -4,7 +4,7 @@ When perform a security check is invoked, with a _platformObject_, _realm_, _ide
 
 1. If _platformObject_ has a [[crossOriginProperties]\] slot, then:
 
-  1. Repeat for each _e_ that is an element of this@[[crossOriginProperties]\]:
+  1. Repeat for each _e_ that is an element of _platformObject_@[[crossOriginProperties]\]:
 
     1. If SameValue(_e_.[[property]\], _identifier_) is **true**, then:
 
@@ -17,8 +17,6 @@ When perform a security check is invoked, with a _platformObject_, _realm_, _ide
 1. If _platformObject_'s global object's effective script origin is not same origin with _realm_'s global object's effective script origin, throw a **TypeError**.
 
 Note: The _realm_ passed in is equal to "the current Realm" concept defined by ECMAScript. We should probably refactor this to use the latter and simplify IDL and this algorithm in the process.
-
-Issue: Currently it is specified below that the window proxy object carries the [[crossOriginProperties]\] slot. That does not quite work with the text above.
 
 # Modifications to the `Location` object
 
@@ -124,7 +122,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
   1. Return _desc_.
 
-1. Return CrossOriginGetOwnProperty(this, this, _P_).
+1. Return CrossOriginGetOwnProperty(this, _P_).
 
 #### StandardDefined(_O_, _P_)
 
@@ -134,11 +132,11 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 1. Return **false**.
 
-#### CrossOriginGetOwnProperty(_O_, _proxyO_, _P_)
+#### CrossOriginGetOwnProperty(_O_, _P_)
 
 1. If _P_ is one of @@toStringTag, @@hasInstance, and @@isConcatSpreadable, then return PropertyDescriptor{ [[Value]]: **undefined**, [[Writable]]: **false** [[Enumerable]]: **false**, [[Configurable]]: **true** }.
 
-1. Let _crossOriginKey_ be a tuple consisting of the current Realm's global object's effective script origin, _proxyO_'s global object's effective script origin, and _P_.
+1. Let _crossOriginKey_ be a tuple consisting of the current Realm's global object's effective script origin, _O_'s global object's effective script origin, and _P_.
 
 1. Repeat for each _e_ that is an element of _O_@[[crossOriginProperties]\]:
 
@@ -146,7 +144,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
     1. If _O_@[[crossOriginPropertyDescriptorMap]\] has _crossOriginKey_, then return the value corresponding to _crossOriginKey_ in _O_@[[crossOriginPropertyDescriptorMap]\].
 
-    1. Let _originalDesc_ be DefaultInternalMethod([[GetOwnProperty]\], _proxyO_, _P_).
+    1. Let _originalDesc_ be DefaultInternalMethod([[GetOwnProperty]\], _O_, _P_).
 
     1. Let _crossOriginDesc_ be CrossOriginPropertyDescriptor(_e_, _originalDesc_).
 
@@ -205,11 +203,11 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[HasProperty]\] (_P_)
 
-1. Return CrossOriginHasProperty(this, this, _P_).
+1. Return CrossOriginHasProperty(this, _P_).
 
-#### CrossOriginHasProperty(_O_, _proxyO_, _P_)
+#### CrossOriginHasProperty(_O_, _P_)
 
-1. If IsSameOrigin(_proxyO_), then return DefaultInternalMethod([[HasProperty]\], _proxyO_, _P_).
+1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[HasProperty]\], _O_, _P_).
 
 1. Repeat for each _e_ that is an element of _O_@[[crossOriginProperties]\]:
 
@@ -273,11 +271,11 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. If this@[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[OwnPropertyKeys]\], this).
 
-1. Return CrossOriginOwnPropertyKeys(this, this).
+1. Return CrossOriginOwnPropertyKeys(this).
 
-#### CrossOriginOwnPropertyKeys(_O_, _proxyO_)
+#### CrossOriginOwnPropertyKeys(_O_)
 
-1. If IsSameOrigin(_proxyO_), then return DefaultInternalMethod([[OwnPropertyKeys]\], _proxyO_).
+1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[OwnPropertyKeys]\], _O_).
 
 1. Let _keys_ be a new empty List.
 
@@ -287,21 +285,19 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. Return _keys_.
 
-# WindowProxy Spec Sketch
+# WindowProxy
 
-This is a first attempt at a more rigorous spec for [WindowProxy](https://html.spec.whatwg.org/multipage/browsers.html#the-windowproxy-object). This was prompted by [W3C Bugzilla Bug 27502](https://www.w3.org/Bugs/Public/show_bug.cgi?id=27502).
+## Extensions to `Window` objects
 
-This shouldn't be taken as "official," or implemented: it's just a place to store the work before it moves to a real spec like WebIDL or HTML.
+Every `Window` object has a [[crossOriginProperties]\] internal slot which is a List consisting of TODO.
+
+Every `Window` object has an [[crossOriginPropertyDescriptorMap]\] internal slot which is a map.
 
 ## WindowProxy Exotic Objects
 
 A _window proxy_ is an exotic object that wraps a `Window` object, indirecting most operations through to the wrapped object. Each browsing context has a window proxy. When the browsing context is navigated, the `Window` object wrapped by the browsing context's window proxy is changed.
 
 Every window proxy object has a [[Window]] internal slot representing the wrapped window.
-
-Every window proxy object has a [[crossOriginProperties]\] internal slot which is a List consisting of TODO.
-
-Every window proxy object has an [[crossOriginPropertyDescriptorMap]\] internal slot which is a map.
 
 The internal methods of window proxies are defined as follows, for a window proxy _O_. In all cases, let _W_ be the value of the [[Window]] internal slot of _O_.
 
@@ -327,7 +323,7 @@ The internal methods of window proxies are defined as follows, for a window prox
 
    Note: This violates ECMAScript's internal method invariants. https://bugzilla.mozilla.org/show_bug.cgi?id=1197958#c4 has further discussion on the manner. For now we document what is implemented.
 
-1. Return CrossOriginGetOwnProperty(this, _W_, _P_).
+1. Return CrossOriginGetOwnProperty(_W_, _P_).
 
 ### [[DefineOwnProperty]\] (_P_, _Desc_)
 
@@ -341,7 +337,7 @@ Note: If _desc_.[[Configurable]] is not present, the above steps do not prescrib
 
 ### [[HasProperty]\] (_P_)
 
-1. Return CrossOriginHasProperty(this, _W_, _P_).
+1. Return CrossOriginHasProperty(_W_, _P_).
 
 ### [[Get]\] (_P_, _Receiver_)
 
@@ -361,4 +357,4 @@ Note: If _desc_.[[Configurable]] is not present, the above steps do not prescrib
 
 ### [[OwnPropertyKeys]\] ( )
 
-1. Return CrossOriginOwnPropertyKeys(this, _W_).
+1. Return CrossOriginOwnPropertyKeys(_W_).
