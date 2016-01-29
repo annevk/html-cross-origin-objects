@@ -136,6 +136,8 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 #### CrossOriginGetOwnProperty(_O_, _proxyO_, _P_)
 
+1. If _P_ is one of @@toStringTag, @@hasInstance, and @@isConcatSpreadable, then return PropertyDescriptor{ [[Value]]: **undefined**, [[Writable]]: **false** [[Enumerable]]: **false**, [[Configurable]]: **true** }.
+
 1. Let _crossOriginKey_ be a tuple consisting of the current Realm's global object's effective script origin, _proxyO_'s global object's effective script origin, and _P_.
 
 1. Repeat for each _e_ that is an element of _O_@[[crossOriginProperties]\]:
