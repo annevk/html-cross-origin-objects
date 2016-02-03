@@ -8,11 +8,11 @@ When perform a security check is invoked, with a _platformObject_, _realm_, _ide
 
     1. If SameValue(_e_.[[property]\], _identifier_) is **true**, then:
 
-      1. If _type_ is "method" and _e_ has neither [[get]\] nor [[get]\], then return.
+      1. If _type_ is "method" and _e_ has neither [[needsGet]\] nor [[needsGet]\], then return.
 
-      2. Otherwise, if _type_ is "getter" and _e_.[[get]\] is **true**, then return.
+      2. Otherwise, if _type_ is "getter" and _e_.[[needsGet]\] is **true**, then return.
 
-      3. Otherwise, if _type_ is "setter" and _e_.[[set]\] is **true**, then return.
+      3. Otherwise, if _type_ is "setter" and _e_.[[needsSet]\] is **true**, then return.
 
 1. If _platformObject_'s global object's effective script origin is not same origin with _realm_'s global object's effective script origin, throw a **TypeError**.
 
@@ -22,9 +22,9 @@ Note: The _realm_ passed in is equal to "the current Realm" concept defined by E
 
 1. Assert: _O_ is a `Location` or `Window` object.
 
-1. If _O_ is a `Location` object, then return « { [[property]\]: "href", [[get]\]: **false**, [[set]\]: **true** }, { [[property]\]: "replace" } ».
+1. If _O_ is a `Location` object, then return « { [[property]\]: "href", [[needsGet]\]: **false**, [[needsSet]\]: **true** }, { [[property]\]: "replace" } ».
 
-1. Let _crossOriginWindowProperties_ be « { [[property]\]: "location", [[get]\]: **true**, [[set]\]: **true** }, { [[property]\]: "postMessage" }, { [[property]\]: "window", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "frames", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "self", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "top", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "parent", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "opener", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "closed", [[get]\]: **true**, [[set]\]: **false** }, { [[property]\]: "close" }, { [[property]\]: "blur" }, { [[property]\]: "focus" } ».
+1. Let _crossOriginWindowProperties_ be « { [[property]\]: "location", [[needsGet]\]: **true**, [[needsSet]\]: **true** }, { [[property]\]: "postMessage" }, { [[property]\]: "window", [[needsGet]\]: **true**, [[needsSet]\]: **false** }, { [[property]\]: "frames", [[needsGet]\]: **true**, [[needsSet]\]: **false** }, { [[property]\]: "self", [[needsGet]\]: **true**, [[needsSet]\]: **false** }, { [[property]\]: "top", [[needsGet]\]: **true**, [[needsSet]\]: **false** }, { [[property]\]: "parent", [[needsGet]\]: **true**, [[needsSet]\]: **false** }, { [[property]\]: "opener", [[needsGet]\]: **true**, [[needsSet]\]: **false** }, { [[property]\]: "closed", [[needsGet]\]: **true**, [[needsSet]\]: **false** }, { [[property]\]: "close" }, { [[property]\]: "blur" }, { [[property]\]: "focus" } ».
 
 1. Repeat for each _e_ that is an element of the **dynamic nested browsing context properties**:
 
@@ -114,15 +114,15 @@ The internal methods of window proxies are defined as follows, for a window prox
 
 #### CrossOriginPropertyDescriptor (_crossOriginProperty_, _originalDesc_)
 
-1. If _crossOriginProperty_.[[get]\] and _crossOriginProperty_.[[set]\] are absent, then:
+1. If _crossOriginProperty_.[[needsGet]\] and _crossOriginProperty_.[[needsSet]\] are absent, then:
 
   1. Return PropertyDescriptor{ [[Value]]: CrossOriginFunctionWrapper(**true**, _crossOriginFunction_), [[Enumerable]]: **true**, [[Writable]]: **false**, [[Configurable]]: **true** }.
 
 1. Otherwise, then:
 
-  1. Let _crossOriginGet_ be CrossOriginFunctionWrapper(_crossOriginProperty_.[[get]\], _originalDesc_.[[Get]\]).
+  1. Let _crossOriginGet_ be CrossOriginFunctionWrapper(_crossOriginProperty_.[[needsGet]\], _originalDesc_.[[Get]\]).
 
-  1. Let _crossOriginSet_ be CrossOriginFunctionWrapper(_crossOriginProperty_.[[set]\], _originalDesc_.[[Set]\]).
+  1. Let _crossOriginSet_ be CrossOriginFunctionWrapper(_crossOriginProperty_.[[needsSet]\], _originalDesc_.[[Set]\]).
 
   1. Return PropertyDescriptor{ [[Get]]: _crossOriginGet_, [[Set]]: _crossOriginSet_, [[Enumerable]]: **true**, [[Configurable]]: **true** }.
 
