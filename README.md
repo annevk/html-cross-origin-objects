@@ -272,23 +272,25 @@ User agents may have an optimization whereby they remove key-value pairs from th
 
 To create a Location object, run these steps:
 
-1. Let _location_ be a new `Location` object.
+1. Let _location_ be a new `Location` platform object.
 
-1. _location_.[[DefineOwnProperty]\]("toString", { [[Value]\]: %ObjProto_toString%, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
+   XXX: when integrating into HTML, xref "platform object".
 
-1. _location_.[[DefineOwnProperty]\]("toJSON", { [[Value]\]: **undefined**, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
+1. Perform ! _location_.[[DefineOwnProperty]\]("toString", { [[Value]\]: %ObjProto_toString%, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
 
-1. Let _valueOfFunction_ be a **Function** object whose behavior is as follows:
+1. Perform ! _location_.[[DefineOwnProperty]\]("toJSON", { [[Value]\]: **undefined**, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
+
+1. Let _valueOfFunction_ be a Function object whose behavior is as follows:
 
    1. Return ? ToObject(**this** value).
 
-   The value of the **Function** object's "length" property is the Number value 0.
+   The value of the Function object's "length" property is the Number value 0.
 
-   The value of the **Function** object’s "name" property is the String value "valueOf".
+   The value of the Function object’s "name" property is the String value "valueOf".
 
-1. _location_.[[DefineOwnProperty]\]("valueOf", { [[Value]\]: _valueOfFunction_, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
+1. Perform ! _location_.[[DefineOwnProperty]\]("valueOf", { [[Value]\]: _valueOfFunction_, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
 
-1. _location_.[[DefineOwnProperty]\](@@toPrimitive, { [[Value]\]: **undefined**, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
+1. Perform ! _location_.[[DefineOwnProperty]\](@@toPrimitive, { [[Value]\]: **undefined**, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
 
 1. Set _location_.[[standardDefinedProperties]\] to _location_.[[OwnPropertyKeys]\]().
 
