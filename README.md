@@ -116,7 +116,7 @@ The internal methods of window proxies are defined as follows, for a window prox
 
 1. If _crossOriginProperty_.[[needsGet]\] and _crossOriginProperty_.[[needsSet]\] are absent, then:
 
-  1. Return PropertyDescriptor{ [[Value]]: CrossOriginFunctionWrapper(**true**, _crossOriginFunction_), [[Enumerable]]: **true**, [[Writable]]: **false**, [[Configurable]]: **true** }.
+  1. Return PropertyDescriptor{ [[Value]]: CrossOriginFunctionWrapper(**true**, _originalDesc_.[[Value]\]), [[Enumerable]]: **true**, [[Writable]]: **false**, [[Configurable]]: **true** }.
 
 1. Otherwise, then:
 
