@@ -50,9 +50,9 @@ A _window proxy_ is an exotic object that wraps a `Window` object, indirecting m
 
 Every window proxy object has a [[Window]] internal slot representing the wrapped window.
 
-The internal methods of window proxies are defined as follows, for a window proxy _O_. In all cases, let _W_ be the value of the [[Window]] internal slot of _O_.
-
 ### [[GetPrototypeOf]\] ( )
+
+1. Let _W_ be this.[[Window]].
 
 1. Return CrossOriginGetPrototypeOf(_W_).
 
@@ -83,6 +83,8 @@ The internal methods of window proxies are defined as follows, for a window prox
 1. Return **false**.
 
 ### [[GetOwnProperty]\] (_P_)
+
+1. Let _W_ be this.[[Window]].
 
 1. If IsSameOrigin(_W_), then return DefaultInternalMethod([[GetOwnProperty]\], _W_, _P_).
 
@@ -148,6 +150,8 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[DefineOwnProperty]\] (_P_, _Desc_)
 
+1. Let _W_ be this.[[Window]].
+
 1. If IsSameOrigin(_W_), then return DefaultInternalMethod([[DefineOwnProperty]\], _W_, _P_, _Desc_)
 
    Note: See above about how this violates ECMAScript's internal method invariants.
@@ -155,6 +159,8 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 1. Return **false**.
 
 ### [[HasProperty]\] (_P_)
+
+1. Let _W_ be this.[[Window]].
 
 1. Return CrossOriginHasProperty(_W_, _P_).
 
@@ -169,6 +175,8 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 1. Throw a **TypeError** exception.
 
 ### [[Get]\] (_P_, _Receiver_)
+
+1. Let _W_ be this.[[Window]].
 
 1. Return CrossOriginGet(this, _W_, _P_, _Receiver_).
 
@@ -187,6 +195,8 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 1. Throw a **TypeError** exception.
 
 ### [[Set]\] (_P_, _V_, _Receiver_)
+
+1. Let _W_ be this.[[Window]].
 
 1. Return CrossOriginSet(this, _W_, _P_, _V_, _Receiver_).
 
@@ -210,6 +220,8 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[Delete]\] (_P_)
 
+1. Let _W_ be this.[[Window]].
+
 1. Return CrossOriginDelete(_W_, _P_).
 
 #### CrossOriginDelete(_O_, _P_)
@@ -220,6 +232,8 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[Enumerate]\] ( )
 
+1. Let _W_ be this.[[Window]].
+
 1. Return CrossOriginEnumerate(_W_).
 
 #### CrossOriginEnumerate(_O_)
@@ -229,6 +243,8 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 1. Return CreateListIterator(« »).
 
 ### [[OwnPropertyKeys]\] ( )
+
+1. Let _W_ be this.[[Window]].
 
 1. Return CrossOriginOwnPropertyKeys(_W_).
 
