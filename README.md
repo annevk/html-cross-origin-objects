@@ -18,7 +18,7 @@ When perform a security check is invoked, with a _platformObject_, _realm_, _ide
 
 Note: The _realm_ passed in is equal to "the current Realm" concept defined by ECMAScript. We should probably refactor this to use the latter and simplify IDL and this algorithm in the process.
 
-## CrossOriginProperties(_O_)
+## CrossOriginProperties( _O_ )
 
 1. Assert: _O_ is a `Location` or `Window` object.
 
@@ -56,21 +56,21 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
 1. Return CrossOriginGetPrototypeOf(_W_).
 
-#### CrossOriginGetPrototypeOf(_O_)
+#### CrossOriginGetPrototypeOf ( _O_ )
 
-1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[GetPrototypeOf]\], _O_).
+1. If IsWindowOrLocationSameOrigin(_O_), then return DefaultInternalMethod([[GetPrototypeOf]\], _O_).
 
 1. Return null.
 
-#### IsSameOrigin(_O_)
+#### IsWindowOrLocationSameOrigin ( _O_ )
 
 1. Return **true** if the effective script origin of the current Realm's global object is same origin with the effective script origin of _O_'s global object, and **false** otherwise.
 
-#### DefaultInternalMethod(_internalMethod_, _O_, _arguments_...)
+#### DefaultInternalMethod ( _internalMethod_, _O_, _arguments_... )
 
 1. Return the result of calling the default ordinary object _internalMethod_ internal method on _O_ passing _arguments_ as the arguments.
 
-### [[SetPrototypeOf]\] (_V_)
+### [[SetPrototypeOf]\] ( _V_ )
 
 1. Return **false**.
 
@@ -82,17 +82,17 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
 1. Return **false**.
 
-### [[GetOwnProperty]\] (_P_)
+### [[GetOwnProperty]\] ( _P_ )
 
 1. Let _W_ be this.[[Window]].
 
-1. If IsSameOrigin(_W_), then return DefaultInternalMethod([[GetOwnProperty]\], _W_, _P_).
+1. If IsWindowOrLocationSameOrigin(_W_), then return DefaultInternalMethod([[GetOwnProperty]\], _W_, _P_).
 
    Note: This violates ECMAScript's internal method invariants. https://bugzilla.mozilla.org/show_bug.cgi?id=1197958#c4 has further discussion on the manner. For now we document what is implemented.
 
 1. Return CrossOriginGetOwnProperty(_W_, _P_).
 
-#### CrossOriginGetOwnProperty(_O_, _P_)
+#### CrossOriginGetOwnProperty ( _O_, _P_ )
 
 1. If _P_ is one of @@toStringTag, @@hasInstance, and @@isConcatSpreadable, then return PropertyDescriptor{ [[Value]]: **undefined**, [[Writable]]: **false** [[Enumerable]]: **false**, [[Configurable]]: **true** }.
 
@@ -114,7 +114,7 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
 1. Throw a **TypeError** exception.
 
-#### CrossOriginPropertyDescriptor (_crossOriginProperty_, _originalDesc_)
+#### CrossOriginPropertyDescriptor ( _crossOriginProperty_, _originalDesc_ )
 
 1. If _crossOriginProperty_.[[needsGet]\] and _crossOriginProperty_.[[needsSet]\] are absent, then:
 
@@ -128,7 +128,7 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
   1. Return PropertyDescriptor{ [[Get]]: _crossOriginGet_, [[Set]]: _crossOriginSet_, [[Enumerable]]: **true**, [[Configurable]]: **true** }.
 
-#### CrossOriginFunctionWrapper (_needsWrapping_, _functionToWrap_)
+#### CrossOriginFunctionWrapper ( _needsWrapping_, _functionToWrap_ )
 
 1. If _needsWrapping_ is **false**, then return undefined.
 
@@ -144,29 +144,29 @@ When a cross-origin wrapper function _F_ is called with a list of arguments _arg
 
 1. Let _wrappedFunction_ be the value of _F_'s [[Wrapped]\] internal slot.
 
-1. Return Call(_wrappedFunction_, this, _argumentsList_).
+1. Return ? Call(_wrappedFunction_, this, _argumentsList_).
 
 Note: due to this being invoked from a cross-origin context, a cross-origin wrapper function will have a different value for `Function.prototype` from the function being wrapped. This follows from how ECMAScript creates anonymous built-in functions.
 
-### [[DefineOwnProperty]\] (_P_, _Desc_)
+### [[DefineOwnProperty]\] ( _P_, _Desc_ )
 
 1. Let _W_ be this.[[Window]].
 
-1. If IsSameOrigin(_W_), then return DefaultInternalMethod([[DefineOwnProperty]\], _W_, _P_, _Desc_)
+1. If IsWindowOrLocationSameOrigin(_W_), then return DefaultInternalMethod([[DefineOwnProperty]\], _W_, _P_, _Desc_)
 
    Note: See above about how this violates ECMAScript's internal method invariants.
 
 1. Return **false**.
 
-### [[HasProperty]\] (_P_)
+### [[HasProperty]\] ( _P_ )
 
 1. Let _W_ be this.[[Window]].
 
 1. Return CrossOriginHasProperty(_W_, _P_).
 
-#### CrossOriginHasProperty(_O_, _P_)
+#### CrossOriginHasProperty ( _O_, _P_ )
 
-1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[HasProperty]\], _O_, _P_).
+1. If IsWindowOrLocationSameOrigin(_O_), then return DefaultInternalMethod([[HasProperty]\], _O_, _P_).
 
 1. Repeat for each _e_ that is an element of CrossOriginProperties(_O_):
 
@@ -174,15 +174,15 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. Throw a **TypeError** exception.
 
-### [[Get]\] (_P_, _Receiver_)
+### [[Get]\] ( _P_, _Receiver_ )
 
 1. Let _W_ be this.[[Window]].
 
 1. Return CrossOriginGet(this, _W_, _P_, _Receiver_).
 
-#### CrossOriginGet(_O_, _proxyO_, _P_, _Receiver_)
+#### CrossOriginGet ( _O_, _proxyO_, _P_, _Receiver_ )
 
-1. If IsSameOrigin(_proxyO_), then return DefaultInternalMethod([[Get]\], _proxyO_, _P_, _Receiver_).
+1. If IsWindowOrLocationSameOrigin(_proxyO_), then return DefaultInternalMethod([[Get]\], _proxyO_, _P_, _Receiver_).
 
 1. Let _desc_ be _O_.[[GetOwnProperty]\](_P_).
 
@@ -194,17 +194,17 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. Throw a **TypeError** exception.
 
-### [[Set]\] (_P_, _V_, _Receiver_)
+### [[Set]\] ( _P_, _V_, _Receiver_ )
 
 1. Let _W_ be this.[[Window]].
 
 1. Return CrossOriginSet(this, _W_, _P_, _V_, _Receiver_).
 
-#### CrossOriginSet(_O_, _proxyO_, _P_, _V_, _Receiver_)
+#### CrossOriginSet ( _O_, _proxyO_, _P_, _V_, _Receiver_ )
 
-1. If IsSameOrigin(_proxyO_), then return DefaultInternalMethod([[Set]\], _proxyO_, _P_, _Receiver_).
+1. If IsWindowOrLocationSameOrigin( _proxyO_ ), then return DefaultInternalMethod([[Set]\], _proxyO_, _P_, _Receiver_).
 
-1. Let _desc_ be _O_.[[GetOwnProperty]\](_P_).
+1. Let _desc_ be _O_.[[GetOwnProperty]\]( _P_ ).
 
 1. If IsAccessorDescriptor(_desc_) is **true**, then:
 
@@ -218,15 +218,15 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. Return **false**.
 
-### [[Delete]\] (_P_)
+### [[Delete]\] ( _P_ )
 
 1. Let _W_ be this.[[Window]].
 
 1. Return CrossOriginDelete(_W_, _P_).
 
-#### CrossOriginDelete(_O_, _P_)
+#### CrossOriginDelete ( _O_, _P_ )
 
-1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[Delete]\], _O_, _P_).
+1. If IsWindowOrLocationSameOrigin(_O_), then return DefaultInternalMethod([[Delete]\], _O_, _P_).
 
 1. Return **false**.
 
@@ -236,9 +236,9 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. Return CrossOriginEnumerate(_W_).
 
-#### CrossOriginEnumerate(_O_)
+#### CrossOriginEnumerate( _O_ )
 
-1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[Enumerate]\], _O_).
+1. If IsWindowOrLocationSameOrigin(_O_), then return DefaultInternalMethod([[Enumerate]\], _O_).
 
 1. Return CreateListIterator(« »).
 
@@ -248,9 +248,9 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. Return CrossOriginOwnPropertyKeys(_W_).
 
-#### CrossOriginOwnPropertyKeys(_O_)
+#### CrossOriginOwnPropertyKeys ( _O_ )
 
-1. If IsSameOrigin(_O_), then return DefaultInternalMethod([[OwnPropertyKeys]\], _O_).
+1. If IsWindowOrLocationSameOrigin(_O_), then return DefaultInternalMethod([[OwnPropertyKeys]\], _O_).
 
 1. Let _keys_ be a new empty List.
 
@@ -280,7 +280,7 @@ For every member other than `href`'s setter and `replace()`, add this step at th
 
 ## New internal slots
 
-A `Location` object has a [[standardDefinedProperties]\] slot which is an empty List.
+A `Location` object has a [[defaultProperties]\] slot which is an empty List.
 
 A `Location` object has an [[crossOriginPropertyDescriptorMap]\] slot which is an empty map.
 
@@ -314,7 +314,7 @@ To create a Location object, run these steps:
 
 1. Perform ! _location_.[[DefineOwnProperty]\](@@toPrimitive, { [[Value]\]: **undefined**, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
 
-1. Set _location_.[[standardDefinedProperties]\] to _location_.[[OwnPropertyKeys]\]().
+1. Set _location_.[[defaultProperties]\] to _location_.[[OwnPropertyKeys]\]().
 
 1. Return _location_.
 
@@ -326,7 +326,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 1. Return CrossOriginGetPrototypeOf(this).
 
-### [[SetPrototypeOf]\] (_V_)
+### [[SetPrototypeOf]\] ( _V_ )
 
 1. Return **false**.
 
@@ -338,51 +338,51 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 1. Return **false**.
 
-### [[GetOwnProperty]\] (_P_)
+### [[GetOwnProperty]\] ( _P_ )
 
-1. If IsSameOrigin(this), then:
+1. If IsWindowOrLocationSameOrigin(this), then:
 
   1. Let _desc_ be DefaultInternalMethod([[GetOwnProperty]\], this, _P_).
 
-  1. If StandardDefined(this, _P_), then set _desc_.[[Configurable]\] to **true**.
+  1. If IsLocationDefaultProperty(this, _P_), then set _desc_.[[Configurable]\] to **true**.
 
   1. Return _desc_.
 
 1. Return CrossOriginGetOwnProperty(this, _P_).
 
-#### StandardDefined(_O_, _P_)
+#### IsLocationDefaultProperty ( _O_, _P_ )
 
-1. Repeat for each _e_ that is an element of _O_.[[standardDefinedProperties]\]:
+1. Repeat for each _e_ that is an element of _O_.[[defaultProperties]\]:
 
   1. If _e_ is _P_, then return **true**.
 
 1. Return **false**.
 
-### [[DefineOwnProperty]\] (_P_, _Desc_)
+### [[DefineOwnProperty]\] ( _P_, _Desc_ )
 
-1. If this.[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
+1. If this.[[defaultProperties]\] is empty, then return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
 
-1. If IsSameOrigin(this), then:
+1. If IsWindowOrLocationSameOrigin(this), then:
 
-  1. If StandardDefined(this, _P_), then return **false**.
+  1. If IsLocationDefaultProperty(this, _P_), then return **false**.
 
   1. Return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
 
 1. Return **false**.
 
-### [[HasProperty]\] (_P_)
+### [[HasProperty]\] ( _P_ )
 
 1. Return CrossOriginHasProperty(this, _P_).
 
-### [[Get]\] (_P_, _Receiver_)
+### [[Get]\] ( _P_, _Receiver_ )
 
 1. Return CrossOriginGet(this, this, _P_, _Receiver_).
 
-### [[Set]\] (_P_, _V_, _Receiver_)
+### [[Set]\] ( _P_, _V_, _Receiver_ )
 
 1. Return CrossOriginSet(this, this, _P_, _V_, _Receiver_).
 
-### [[Delete]\] (_P_)
+### [[Delete]\] ( _P_ )
 
 1. Return CrossOriginDelete(this, _P_).
 
@@ -392,6 +392,6 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 ### [[OwnPropertyKeys]\] ( )
 
-1. If this.[[standardDefinedProperties]\] is empty, then return DefaultInternalMethod([[OwnPropertyKeys]\], this).
+1. If this.[[defaultProperties]\] is empty, then return DefaultInternalMethod([[OwnPropertyKeys]\], this).
 
 1. Return CrossOriginOwnPropertyKeys(this).
