@@ -94,7 +94,7 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
 #### CrossOriginGetOwnProperty ( _O_, _P_ )
 
-1. If _P_ is one of @@toStringTag, @@hasInstance, and @@isConcatSpreadable, then return PropertyDescriptor{ [[Value]]: **undefined**, [[Writable]]: **false** [[Enumerable]]: **false**, [[Configurable]]: **true** }.
+1. If _P_ is @@toStringTag, @@hasInstance, or @@isConcatSpreadable, then return PropertyDescriptor{ [[Value]]: **undefined**, [[Writable]]: **false** [[Enumerable]]: **false**, [[Configurable]]: **true** }.
 
 1. Let _crossOriginKey_ be a tuple consisting of the current Realm's global object's effective script origin, _O_'s global object's effective script origin, and _P_.
 
@@ -266,11 +266,9 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 As stated there, it is bogus.
 
-## Get rid of `[Unforgeable]`
+## Move `[Unforgeable]` from the interface to each property
 
-Rather than being non-configurable, we want `Location` objects to appear configurable, but not actually be configurable. The rationale is that `Location` objects can go from being same-origin to cross-origin at which point a number of properties disappear and the identities of those that remain change. However, we do not actually want properties that appear in IDL to be configurable in either the same-origin or cross-origin case. (The intention is to preserve the internal method invariants.)
-
-This is done by changing [[GetOwnProperty]\] and [[DefineOwnProperty]\].
+We'll inline the bits specific to the interface. We'll also lie about being non-configurable to not break internal method invariants.
 
 ## Add security check to existing member definitions
 
