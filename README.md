@@ -180,7 +180,9 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. If IsDataDescriptor(_desc_) is **true**, then return _desc_.[[Value]\].
 
-1. If IsAccessorDescriptor(_desc_) is **true**, then return Call(_desc_.[[Get]\], _Receiver_).
+1. Otherwise, IsAccessorDescriptor(_desc_) must be **true** so, let _getter_ be _desc_.[[Get]\].
+
+1. If _getter_ is not **undefined**, return ? Call(_getter_, _Receiver_).
 
 1. Throw a **TypeError** exception.
 
@@ -196,7 +198,11 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. If IsAccessorDescriptor(_desc_) is **true**, then:
 
-  1. Call(_desc_.[[Set]\], _Receiver_, «_V_»).
+  1. Let _setter_ be _desc_.[[Set]\].
+
+  1. If _setter_ is **undefined**, return **false**.
+
+  1. Perform ? Call(_setter_, _Receiver_, «_V_»).
 
   1. Return **true**.
 
