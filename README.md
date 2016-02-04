@@ -86,6 +86,18 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
 1. Let _W_ be this.[[Window]].
 
+1. If _P_ is an array index property name, then:
+
+   XXX: reference IDL for "array index property name".
+
+  1. Let _index_ be ToUint32(_P_).
+
+  1. If _index_ is a supported property index, then return PlatformObjectGetOwnProperty(_W_, _P_).
+
+     XXX: flatten this in a PR against HTML. See https://html.spec.whatwg.org/#dom-window-item and the paragraph before in particular.
+
+  1. Return PropertyDescriptor{ [[Value]]: **undefined**, [[Writable]]: **false** [[Enumerable]]: **false**, [[Configurable]]: **true** }.
+
 1. If IsWindowOrLocationSameOrigin(_W_), then return OrdinaryGetOwnProperty(_W_, _P_).
 
    Note: This violates ECMAScript's internal method invariants. https://bugzilla.mozilla.org/show_bug.cgi?id=1197958#c4 has further discussion on the manner. For now we document what is implemented.
@@ -204,7 +216,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. If IsWindowOrLocationSameOrigin( _proxyO_ ), then return DefaultInternalMethod([[Set]\], _proxyO_, _P_, _Receiver_).
 
-1. Let _desc_ be _O_.[[GetOwnProperty]\]( _P_ ).
+1. Let _desc_ be _O_.[[GetOwnProperty]\](_P_).
 
 1. If IsAccessorDescriptor(_desc_) is **true**, then:
 
@@ -294,7 +306,7 @@ To create a Location object, run these steps:
 
 1. Let _location_ be a new `Location` platform object.
 
-   XXX: when integrating into HTML, xref "platform object".
+   XXX: reference IDL for "platform object".
 
 1. Perform ! _location_.[[DefineOwnProperty]\]("toString", { [[Value]\]: %ObjProto_toString%, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
 
