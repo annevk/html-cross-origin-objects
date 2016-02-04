@@ -388,6 +388,4 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 ### [[OwnPropertyKeys]\] ( )
 
-1. If this.[[defaultProperties]\] is empty, then return DefaultInternalMethod([[OwnPropertyKeys]\], this).
-
 1. Return CrossOriginOwnPropertyKeys(this).
