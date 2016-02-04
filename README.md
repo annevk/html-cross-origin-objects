@@ -140,7 +140,11 @@ Note: If this abstract operation returns undefined and there is no custom behavi
 
 1. If _crossOriginProperty_.[[needsGet]\] and _crossOriginProperty_.[[needsSet]\] are absent, then:
 
-  1. Return PropertyDescriptor{ [[Value]]: CrossOriginFunctionWrapper(**true**, _originalDesc_.[[Value]\]), [[Enumerable]]: **true**, [[Writable]]: **false**, [[Configurable]]: **true** }.
+  1. Let _value_ be _originalDesc_.[[Value]\].
+
+  1. If IsCallable(_value_) is **true**, set _value_ to CrossOriginFunctionWrapper(**true**, _value_).
+
+  1. Return PropertyDescriptor{ [[Value]]: _value_, [[Enumerable]]: **true**, [[Writable]]: **false**, [[Configurable]]: **true** }.
 
 1. Otherwise, then:
 
