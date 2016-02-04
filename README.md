@@ -52,7 +52,7 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
 ### [[GetPrototypeOf]\] ( )
 
-1. Let _W_ be this.[[Window]].
+1. Let _W_ be the [[Window]] internal slot of **this**.
 
 1. Return CrossOriginGetPrototypeOf(_W_).
 
@@ -84,7 +84,7 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
 ### [[GetOwnProperty]\] ( _P_ )
 
-1. Let _W_ be this.[[Window]].
+1. Let _W_ be the [[Window]] internal slot of **this**.
 
 1. If _P_ is an array index property name, then:
 
@@ -124,13 +124,13 @@ Note: If this abstract operation returns undefined and there is no custom behavi
 
   1. If SameValue(_e_.[[property]\], _P_) is **true**, then:
 
-    1. If _O_.[[crossOriginPropertyDescriptorMap]\] has _crossOriginKey_, then return the value corresponding to _crossOriginKey_ in _O_.[[crossOriginPropertyDescriptorMap]\].
+    1. If the [[crossOriginPropertyDescriptorMap]\] internal slot of _O_ has _crossOriginKey_, then return the value corresponding to _crossOriginKey_ in the [[crossOriginPropertyDescriptorMap]\] internal slot of _O_.
 
     1. Let _originalDesc_ be OrdinaryGetOwnProperty(_O_, _P_).
 
     1. Let _crossOriginDesc_ be CrossOriginPropertyDescriptor(_e_, _originalDesc_).
 
-    1. Append key _crossOriginKey_ with its corresponding value _crossOriginDesc_ to _O_.[[crossOriginPropertyDescriptorMap]\].
+    1. Append key _crossOriginKey_ with its corresponding value _crossOriginDesc_ to the [[crossOriginPropertyDescriptorMap]\] internal slot of _O_.
 
     1. Return _crossOriginDesc_.
 
@@ -176,7 +176,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[DefineOwnProperty]\] ( _P_, _Desc_ )
 
-1. Let _W_ be this.[[Window]].
+1. Let _W_ be the [[Window]] internal slot of **this**.
 
 1. If IsWindowOrLocationSameOrigin(_W_), then return ? OrdinaryDefineOwnProperty(_W_, _P_, _Desc_).
 
@@ -186,7 +186,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[HasProperty]\] ( _P_ )
 
-1. Let _W_ be this.[[Window]].
+1. Let _W_ be the [[Window]] internal slot of **this**.
 
 1. Return CrossOriginHasProperty(_W_, _P_).
 
@@ -202,7 +202,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[Get]\] ( _P_, _Receiver_ )
 
-1. Let _W_ be this.[[Window]].
+1. Let _W_ be the [[Window]] internal slot of **this**.
 
 1. Return CrossOriginGet(this, _W_, _P_, _Receiver_).
 
@@ -222,7 +222,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[Set]\] ( _P_, _V_, _Receiver_ )
 
-1. Let _W_ be this.[[Window]].
+1. Let _W_ be the [[Window]] internal slot of **this**.
 
 1. Return CrossOriginSet(this, _W_, _P_, _V_, _Receiver_).
 
@@ -246,7 +246,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[Delete]\] ( _P_ )
 
-1. Let _W_ be this.[[Window]].
+1. Let _W_ be the [[Window]] internal slot of **this**.
 
 1. Return CrossOriginDelete(_W_, _P_).
 
@@ -258,7 +258,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[Enumerate]\] ( )
 
-1. Let _W_ be this.[[Window]].
+1. Let _W_ be the [[Window]] internal slot of **this**.
 
 1. Return CrossOriginEnumerate(_W_).
 
@@ -270,7 +270,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 ### [[OwnPropertyKeys]\] ( )
 
-1. Let _W_ be this.[[Window]].
+1. Let _W_ be the [[Window]] internal slot of **this**.
 
 1. Return CrossOriginOwnPropertyKeys(_W_).
 
@@ -338,7 +338,7 @@ To create a Location object, run these steps:
 
 1. Perform ! _location_.[[DefineOwnProperty]\](@@toPrimitive, { [[Value]\]: **undefined**, [[Writable]\]: **false**, [[Enumerable]\]: **false**, [[Configurable]\]: **false** }).
 
-1. Set _location_.[[defaultProperties]\] to _location_.[[OwnPropertyKeys]\]().
+1. Set the [[defaultProperties]\] internal slot of _location_ to _location_.[[OwnPropertyKeys]\]().
 
 1. Return _location_.
 
@@ -380,7 +380,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 #### IsLocationDefaultProperty ( _O_, _P_ )
 
-1. Repeat for each _e_ that is an element of _O_.[[defaultProperties]\]:
+1. Repeat for each _e_ that is an element of the [[defaultProperties]\] internal slot of _O_:
 
   1. If _e_ is _P_, then return **true**.
 
