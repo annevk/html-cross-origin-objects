@@ -92,7 +92,7 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
   1. Let _index_ be ToUint32(_P_).
 
-  1. If _index_ is a supported property index, then return PlatformObjectGetOwnProperty(_W_, _P_).
+  1. If _index_ is a supported property index, then return PlatformObjectGetOwnProperty(_W_, _P_, **true**).
 
      XXX: flatten this in a PR against HTML. See https://html.spec.whatwg.org/#dom-window-item and the paragraph before in particular.
 
@@ -102,9 +102,19 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
    Note: This violates ECMAScript's internal method invariants. https://bugzilla.mozilla.org/show_bug.cgi?id=1197958#c4 has further discussion on the manner. For now we document what is implemented.
 
-1. Return CrossOriginGetOwnProperty(_W_, _P_).
+1. Let _property_ be CrossOriginGetOwnPropertyHelper(_W_, _P_).
 
-#### CrossOriginGetOwnProperty ( _O_, _P_ )
+1. If _property_ is not **undefined**, return _property__.
+
+1. If _property_ is undefined and _P_ is a child browsing context name, then ...
+
+   XXX: define this when integrating with HTML. See https://github.com/whatwg/html/pull/544 for details.
+
+1. Throw a **TypeError** exception.
+
+#### CrossOriginGetOwnPropertyHelper ( _O_, _P_ )
+
+Note: If this abstract operation returns undefined and there is no custom behavior, the caller needs to throw a **TypeError* exception.
 
 1. If _P_ is @@toStringTag, @@hasInstance, or @@isConcatSpreadable, then return PropertyDescriptor{ [[Value]]: **undefined**, [[Writable]]: **false** [[Enumerable]]: **false**, [[Configurable]]: **true** }.
 
@@ -124,7 +134,7 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
     1. Return _crossOriginDesc_.
 
-1. Throw a **TypeError** exception.
+1. Return **undefined**.
 
 #### CrossOriginPropertyDescriptor ( _crossOriginProperty_, _originalDesc_ )
 
@@ -358,7 +368,11 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
   1. Return _desc_.
 
-1. Return CrossOriginGetOwnProperty(this, _P_).
+1. Let _property_ be CrossOriginGetOwnProperty(this, _P_).
+
+1. If _property_ is not **undefined**, return _property_.
+
+1. Throw a **TypeError** exception.
 
 #### IsLocationDefaultProperty ( _O_, _P_ )
 
