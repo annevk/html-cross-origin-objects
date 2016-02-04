@@ -86,7 +86,7 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
 1. Let _W_ be this.[[Window]].
 
-1. If IsWindowOrLocationSameOrigin(_W_), then return DefaultInternalMethod([[GetOwnProperty]\], _W_, _P_).
+1. If IsWindowOrLocationSameOrigin(_W_), then return OrdinaryGetOwnProperty(_W_, _P_).
 
    Note: This violates ECMAScript's internal method invariants. https://bugzilla.mozilla.org/show_bug.cgi?id=1197958#c4 has further discussion on the manner. For now we document what is implemented.
 
@@ -104,7 +104,7 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
     1. If _O_.[[crossOriginPropertyDescriptorMap]\] has _crossOriginKey_, then return the value corresponding to _crossOriginKey_ in _O_.[[crossOriginPropertyDescriptorMap]\].
 
-    1. Let _originalDesc_ be DefaultInternalMethod([[GetOwnProperty]\], _O_, _P_).
+    1. Let _originalDesc_ be OrdinaryGetOwnProperty(_O_, _P_).
 
     1. Let _crossOriginDesc_ be CrossOriginPropertyDescriptor(_e_, _originalDesc_).
 
@@ -152,7 +152,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 1. Let _W_ be this.[[Window]].
 
-1. If IsWindowOrLocationSameOrigin(_W_), then return DefaultInternalMethod([[DefineOwnProperty]\], _W_, _P_, _Desc_)
+1. If IsWindowOrLocationSameOrigin(_W_), then return ? OrdinaryDefineOwnProperty(_W_, _P_, _Desc_).
 
    Note: See above about how this violates ECMAScript's internal method invariants.
 
@@ -166,7 +166,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 #### CrossOriginHasProperty ( _O_, _P_ )
 
-1. If IsWindowOrLocationSameOrigin(_O_), then return DefaultInternalMethod([[HasProperty]\], _O_, _P_).
+1. If IsWindowOrLocationSameOrigin(_O_), then return ? OrdinaryHasProperty(_O_, _P_).
 
 1. Repeat for each _e_ that is an element of CrossOriginProperties(_O_):
 
@@ -340,7 +340,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 1. If IsWindowOrLocationSameOrigin(this), then:
 
-  1. Let _desc_ be DefaultInternalMethod([[GetOwnProperty]\], this, _P_).
+  1. Let _desc_ be OrdinaryGetOwnProperty(this, _P_).
 
   1. If IsLocationDefaultProperty(this, _P_), then set _desc_.[[Configurable]\] to **true**.
 
@@ -362,7 +362,7 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
   1. If IsLocationDefaultProperty(this, _P_), then return **false**.
 
-  1. Return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
+  1. Return ? OrdinaryDefineOwnProperty(this, _P_, _Desc_).
 
 1. Return **false**.
 
