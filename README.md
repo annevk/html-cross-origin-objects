@@ -358,8 +358,6 @@ This might need a corresponding change to IDL that makes it okay for internal me
 
 ### [[DefineOwnProperty]\] ( _P_, _Desc_ )
 
-1. If this.[[defaultProperties]\] is empty, then return DefaultInternalMethod([[DefineOwnProperty]\], this, _P_, _Desc_).
-
 1. If IsWindowOrLocationSameOrigin(this), then:
 
   1. If IsLocationDefaultProperty(this, _P_), then return **false**.
