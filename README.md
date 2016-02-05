@@ -58,17 +58,13 @@ Every window proxy object has a [[Window]] internal slot representing the wrappe
 
 #### CrossOriginGetPrototypeOf ( _O_ )
 
-1. If IsWindowOrLocationSameOrigin(_O_), then return DefaultInternalMethod([[GetPrototypeOf]\], _O_).
+1. If IsWindowOrLocationSameOrigin(_O_), then return OrdinaryGetPrototypeOf(_O_).
 
 1. Return null.
 
 #### IsWindowOrLocationSameOrigin ( _O_ )
 
 1. Return **true** if the effective script origin of the current Realm's global object is same origin with the effective script origin of _O_'s global object, and **false** otherwise.
-
-#### DefaultInternalMethod ( _internalMethod_, _O_, _arguments_... )
-
-1. Return the result of calling the default ordinary object _internalMethod_ internal method on _O_ passing _arguments_ as the arguments.
 
 ### [[SetPrototypeOf]\] ( _V_ )
 
@@ -208,7 +204,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 #### CrossOriginGet ( _O_, _proxyO_, _P_, _Receiver_ )
 
-1. If IsWindowOrLocationSameOrigin(_proxyO_), then return DefaultInternalMethod([[Get]\], _proxyO_, _P_, _Receiver_).
+1. If IsWindowOrLocationSameOrigin(_proxyO_), then return ? OrdinaryGet(_proxyO_, _P_, _Receiver_).
 
 1. Let _desc_ be _O_.[[GetOwnProperty]\](_P_).
 
@@ -228,7 +224,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 #### CrossOriginSet ( _O_, _proxyO_, _P_, _V_, _Receiver_ )
 
-1. If IsWindowOrLocationSameOrigin( _proxyO_ ), then return DefaultInternalMethod([[Set]\], _proxyO_, _P_, _Receiver_).
+1. If IsWindowOrLocationSameOrigin( _proxyO_ ), then return ? OrdinarySet(_proxyO_, _P_, _Receiver_).
 
 1. Let _desc_ be _O_.[[GetOwnProperty]\](_P_).
 
@@ -252,7 +248,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 #### CrossOriginDelete ( _O_, _P_ )
 
-1. If IsWindowOrLocationSameOrigin(_O_), then return DefaultInternalMethod([[Delete]\], _O_, _P_).
+1. If IsWindowOrLocationSameOrigin(_O_), then return ? OrdinaryDelete(_O_, _P_).
 
 1. Return **false**.
 
@@ -264,7 +260,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 #### CrossOriginEnumerate( _O_ )
 
-1. If IsWindowOrLocationSameOrigin(_O_), then return DefaultInternalMethod([[Enumerate]\], _O_).
+1. If IsWindowOrLocationSameOrigin(_O_), then return OrdinaryEnumerate(_O_).
 
 1. Return CreateListIterator(« »).
 
@@ -276,7 +272,7 @@ Note: due to this being invoked from a cross-origin context, a cross-origin wrap
 
 #### CrossOriginOwnPropertyKeys ( _O_ )
 
-1. If IsWindowOrLocationSameOrigin(_O_), then return DefaultInternalMethod([[OwnPropertyKeys]\], _O_).
+1. If IsWindowOrLocationSameOrigin(_O_), then return OrdinaryOwnPropertyKeys(_O_).
 
 1. Let _keys_ be a new empty List.
 
