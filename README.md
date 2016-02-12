@@ -1,3 +1,7 @@
+# THIS DOCUMENT IS OBSOLETE
+
+Please see https://github.com/whatwg/html/pull/638 instead or the HTML Standard if that PR is merged.
+
 # Implement IDL's "perform a security check"
 
 When perform a security check is invoked, with a _platformObject_, _realm_, _identifier_, and _type_, run these steps:
